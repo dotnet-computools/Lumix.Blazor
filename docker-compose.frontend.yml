@@ -1,0 +1,17 @@
+﻿version: '3.8'
+services:
+  frontend:
+    container_name: lumix-frontend
+    build:
+      context: .
+      dockerfile: Lumix.Blazor/Dockerfile
+    ports:
+      - "8080:80"
+      - "8081:443"
+    networks:
+      - lumix-network
+
+networks:
+  lumix-network:
+    name: lumix-network
+    external: true

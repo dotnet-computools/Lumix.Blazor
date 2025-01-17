@@ -1,0 +1,24 @@
+# This is a generated file. Not intended for manual editing.
+version: "3.8"
+services:
+  frontend:
+    build:
+      context: "C:\\Users\\Andrii\\RiderProjects\\Lumix.Blazor"
+      dockerfile: "Lumix.Blazor/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net6.0/Lumix.Blazor.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_STATICWEBASSETS: "/app/bin/Debug/net6.0/Lumix.Blazor.staticwebassets.runtime.CT.json"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "lumix.blazor:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\Andrii\\AppData\\Roaming\\Microsoft\\UserSecrets:/root/.microsoft/usersecrets"
+    - "C:\\Users\\Andrii\\.nuget\\packages:/root/.nuget/packages"
+    - "C:\\Users\\Andrii\\RiderProjects\\Lumix.Blazor\\Lumix.Blazor:/app:rw"
+    - "C:\\Users\\Andrii\\RiderProjects\\Lumix.Blazor:/src:rw"
+    working_dir: "/app"

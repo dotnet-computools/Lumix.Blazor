@@ -1,2 +1,86 @@
-﻿@page "/accounts/register"
-<h3>Register page</h3>
+﻿@page "/register"
+@using Lumix.Blazor.Data
+@using Lumix.Blazor.Services.IServices
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject ILogger<Register> Logger
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.h5">Register</MudText>
+    </MudItem>
+    <MudItem xs="12">
+        <MudForm @ref="form" Model="@_registerDto">
+            <MudTextField @bind-Value="_registerDto.UserName" Label="Username" Required="true" />
+            <MudTextField @bind-Value="_registerDto.Email" Label="Email" Required="true" />
+            <MudTextField @bind-Value="_registerDto.Password" Label="Password" InputType="InputType.Password" Required="true" />
+            <MudButton OnClick="CreateAccount" ButtonType="ButtonType.Submit" Color="Color.Primary" Disabled="@_isProcessing">
+                @if (_isProcessing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Register</MudText>
+                }
+            </MudButton>
+        </MudForm>
+    </MudItem>
+</MudGrid>
+
+@if (success)
+{
+    <MudAlert Severity="Severity.Success">Registration successful!</MudAlert>
+}
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+}
+
+@code {
+    private RegisterDto _registerDto = new();
+    private bool success;
+    private string _errorMessage = string.Empty;
+    private bool _isProcessing;
+    private MudForm form;
+
+    private async Task CreateAccount()
+    {
+        try
+        {
+            _isProcessing = true;
+            _errorMessage = string.Empty;
+            
+            await form.Validate();
+            if (!form.IsValid)
+            {
+                _errorMessage = "Please fill in all required fields correctly.";
+                return;
+            }
+
+            var result = await AuthService.RegisterAsync(_registerDto);
+            if (result.IsSuccess)
+            {
+                success = true;
+                await Task.Delay(1000); // Show success message briefly
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                _errorMessage = result.ErrorMessage;
+                Logger.LogError("Registration failed: {ErrorMessage}", result.ErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "An unexpected error occurred. Please try again.";
+            Logger.LogError(ex, "Unhandled exception during registration");
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+}
