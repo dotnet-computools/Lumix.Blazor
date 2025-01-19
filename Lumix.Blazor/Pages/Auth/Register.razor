@@ -10,12 +10,12 @@
         <MudText Typo="Typo.h5">Register</MudText>
     </MudItem>
     <MudItem xs="12">
-        <MudForm @ref="form" Model="@_registerDto">
-            <MudTextField @bind-Value="_registerDto.UserName" Label="Username" Required="true" />
-            <MudTextField @bind-Value="_registerDto.Email" Label="Email" Required="true" />
-            <MudTextField @bind-Value="_registerDto.Password" Label="Password" InputType="InputType.Password" Required="true" />
-            <MudButton OnClick="CreateAccount" ButtonType="ButtonType.Submit" Color="Color.Primary" Disabled="@_isProcessing">
-                @if (_isProcessing)
+        <MudForm @ref="Form" Model="@RegisterDto">
+            <MudTextField @bind-Value="RegisterDto.UserName" Label="Username" Required="true" />
+            <MudTextField @bind-Value="RegisterDto.Email" Label="Email" Required="true" />
+            <MudTextField @bind-Value="RegisterDto.Password" Label="Password" InputType="InputType.Password" Required="true" />
+            <MudButton OnClick="CreateAccount" Color="Color.Primary" Disabled="@IsProcessing">
+                @if (IsProcessing)
                 {
                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
                     <MudText Class="ms-2">Processing</MudText>
@@ -33,54 +33,53 @@
 {
     <MudAlert Severity="Severity.Success">Registration successful!</MudAlert>
 }
-@if (!string.IsNullOrEmpty(_errorMessage))
+@if (!string.IsNullOrEmpty(ErrorMessage))
 {
-    <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+    <MudAlert Severity="Severity.Error">@ErrorMessage</MudAlert>
 }
 
 @code {
-    private RegisterDto _registerDto = new();
-    private bool success;
-    private string _errorMessage = string.Empty;
-    private bool _isProcessing;
-    private MudForm form;
+    private RegisterDto RegisterDto { get; set; } = new();
+    private bool success { get; set; }
+    private string ErrorMessage { get; set; }
+    private bool IsProcessing { get; set; }
+    private MudForm Form { get; set; }
 
     private async Task CreateAccount()
     {
         try
         {
-            _isProcessing = true;
-            _errorMessage = string.Empty;
+            IsProcessing = true;
+            ErrorMessage = string.Empty;
             
-            await form.Validate();
-            if (!form.IsValid)
+            await Form.Validate();
+            if (!Form.IsValid)
             {
-                _errorMessage = "Please fill in all required fields correctly.";
+                ErrorMessage = "Please fill in all required fields correctly.";
                 return;
             }
 
-            var result = await AuthService.RegisterAsync(_registerDto);
+            var result = await AuthService.RegisterAsync(RegisterDto);
             if (result.IsSuccess)
             {
                 success = true;
                 await Task.Delay(1000); // Show success message briefly
-                NavigationManager.NavigateTo("/login");
+                NavigationManager.NavigateTo("login");
             }
             else
             {
-                _errorMessage = result.ErrorMessage;
+                ErrorMessage = result.ErrorMessage;
                 Logger.LogError("Registration failed: {ErrorMessage}", result.ErrorMessage);
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = "An unexpected error occurred. Please try again.";
+            ErrorMessage = "An unexpected error occurred. Please try again.";
             Logger.LogError(ex, "Unhandled exception during registration");
         }
         finally
         {
-            _isProcessing = false;
-            StateHasChanged();
+            IsProcessing = false;
         }
     }
 }
