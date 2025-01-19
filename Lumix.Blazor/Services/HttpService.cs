@@ -7,12 +7,11 @@ using Lumix.Blazor.Models;
 
 public class HttpService
 {
-    private readonly HttpClient _httpClient;
+    private static readonly HttpClient _httpClient = new HttpClient();
     private readonly ILogger<HttpService> _logger;
 
-    public HttpService(HttpClient httpClient, ILogger<HttpService> logger)
+    public HttpService(ILogger<HttpService> logger)
     {
-        _httpClient = httpClient;
         _logger = logger;
     }
 

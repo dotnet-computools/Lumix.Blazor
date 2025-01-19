@@ -8,7 +8,7 @@ public class AuthService : IAuthService
 {
     private readonly HttpService _httpService;
     private readonly ILogger<AuthService> _logger;
-    private readonly string _baseUrl = "api/auth";
+    private readonly string _baseUrl = "https://localhost:7231/api/auth";
 
     public AuthService(HttpService httpService, ILogger<AuthService> logger)
     {
