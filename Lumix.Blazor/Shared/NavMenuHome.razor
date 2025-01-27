@@ -1,0 +1,62 @@
+﻿<style>
+    .mud-button.nav-menu-button {
+        border-width: 2px;
+        border-color: orangered;
+        font-family: 'Sofia', sans-serif;
+        font-weight: 400;
+        padding-left: 10px;
+        padding-right: 10px;
+        text-transform: none;
+        font-size: 16px;
+        box-shadow: none;
+    }
+
+    .login-button {
+        color: orangered;
+        width: 120px;
+        height: 38px;
+    }
+
+        .login-button:hover {
+            background-color: orangered;
+            color: white;
+        }
+
+    .register-button {
+        background-color: orangered;
+        color: white;
+        width: 223px;
+        height: 38px;
+    }
+
+        .register-button:hover {
+            background-color: orangered;
+            color: black;
+            border: solid;
+            border-width: 2px;
+            border-color: black;
+        }
+</style>
+
+
+<MudAppBar Elevation="0" Style="background-color: white;">
+    <div class="logo-container">
+        <img src="images/logo.png" alt="logo_icon" />
+    </div>
+
+    <MudSpacer />
+
+    <div class="buttons-section">
+        <div class="button-container">
+            <MudButton Variant="Variant.Outlined" Class="nav-menu-button login-button" Href="/login">
+                Увійти
+            </MudButton>
+        </div>
+        <MudSpacer />
+        <div class="button-container">
+            <MudButton Variant="Variant.Filled" Class="nav-menu-button register-button" Href="/register">
+                Зареєструватися
+            </MudButton>
+        </div>
+    </div>
+</MudAppBar>
