@@ -9,16 +9,21 @@
 <PageTitle>Lumix.Blazor</PageTitle>
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+    
+    <CascadingAuthenticationState>
+        <AuthorizeView>
+            <Authorized>
+                <NavMenu />
+            </Authorized>
+        </AuthorizeView>
+    </CascadingAuthenticationState>
 
     <main>
-        <div class="top-row px-4">
+@*         <div class="top-row px-4">
             <a href="/login" target="_self">Login</a>
-                <a href="/register" target="_self">Register</a>
+            <a href="/register" target="_self">Register</a>
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+        </div> *@
 
         <article class="content px-4">
             @Body
