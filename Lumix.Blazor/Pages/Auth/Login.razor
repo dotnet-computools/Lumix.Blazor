@@ -176,7 +176,7 @@
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Сталася неочікувана помилка. Спробуйте ще раз.";
+            ErrorMessage = "Error. Try again.";
             Logger.LogError(ex, "Unhandled exception during login for user {Email}", LoginDto.Email);
         }
         finally

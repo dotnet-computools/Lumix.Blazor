@@ -22,7 +22,6 @@ public class HttpService
     {
         try
         {
-            // Додаємо токен до кожного запиту
             var token = await _localStorage.GetItemAsync<string>("access_token");
             if (!string.IsNullOrEmpty(token))
             {
@@ -67,5 +66,5 @@ public class HttpService
         return await SendRequestAsync<T>(request);
     }
 
-    // Інші методи (GET, PUT, DELETE) залишаються такими ж
+    
 }
