@@ -1,8 +1,11 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Security;
+using Blazored.LocalStorage;
 using Lumix.Blazor.Data;
 using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
+using Microsoft.JSInterop;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,28 +13,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Service 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddMudServices();
+builder.Services.AddBlazoredLocalStorage();
 
 // HTTP and API 
 builder.Services.AddHttpClient<HttpService>(client =>
     {
-        client.BaseAddress = new Uri("http://localhost:5207/");
+        client.BaseAddress = new Uri("https://localhost:7231/"); 
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     })
-    .ConfigurePrimaryHttpMessageHandler(() =>
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
     {
-        return new SocketsHttpHandler
+        UseCookies = true,
+        CookieContainer = new CookieContainer(),
+        EnableMultipleHttp2Connections = true,
+        KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests,
+        PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+        SslOptions = new SslClientAuthenticationOptions
         {
-            PooledConnectionLifetime = TimeSpan.FromMinutes(2),
-            KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests,
-            EnableMultipleHttp2Connections = true,
-            SslOptions = new SslClientAuthenticationOptions
-            {
-                RemoteCertificateValidationCallback = (sender, cert, chain, errors) => true
-            }
-        };
+            RemoteCertificateValidationCallback = (sender, cert, chain, errors) => true
+        }
     });
 
 builder.Services.AddScoped<HttpService>();
@@ -48,9 +50,10 @@ builder.Services.AddLogging(logging =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
-        builder.AllowAnyOrigin()
+        builder.WithOrigins("https://localhost:7231/")
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var app = builder.Build();

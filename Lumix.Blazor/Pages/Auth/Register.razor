@@ -5,38 +5,116 @@
 @inject NavigationManager NavigationManager
 @inject ILogger<Register> Logger
 
-<MudGrid>
-    <MudItem xs="12">
-        <MudText Typo="Typo.h5">Register</MudText>
+<MudGrid Class="min-h-screen">
+    <MudItem xs="12" sm="6" Class="flex justify-center items-center relative">
+        <MudPaper Class="flex flex-col items-center justify-center space-y-6 mt-8">
+            <MudImage Src="images/auth/inspiring-view-morning-light.png"
+                      Width="256"
+                      Height="321"
+                      Alt="Portrait 1"
+                      Class="rounded-lg position-image" />
+            <MudImage Src="images/auth/handsome-young-man-with-nose-pierced-holding-sunflower-hand-against-grey-backdrop.png"
+                      Width="230"
+                      Height="308"
+                      Alt="Portrait 2"
+                      Class="rounded-lg position-image" />
+            <MudImage Src="images/auth/portrait-young-woman-with-natural-make-up.png"
+                      Width="240"
+                      Height="360"
+                      Alt="Portrait 3"
+                      Class="rounded-lg position-image" />
+        </MudPaper>
     </MudItem>
-    <MudItem xs="12">
-        <MudForm @ref="Form" Model="@RegisterDto">
-            <MudTextField @bind-Value="RegisterDto.UserName" Label="Username" Required="true" />
-            <MudTextField @bind-Value="RegisterDto.Email" Label="Email" Required="true" />
-            <MudTextField @bind-Value="RegisterDto.Password" Label="Password" InputType="InputType.Password" Required="true" />
-            <MudButton OnClick="CreateAccount" Color="Color.Primary" Disabled="@IsProcessing">
-                @if (IsProcessing)
+    
+    <MudItem xs="12" sm="6" Class="d-flex justify-center items-center registration-item" >
+        <MudPaper Class="pa-8 w-full max-w-md" Style="box-shadow: none;">
+            <div class="text-center mb-8">
+                <MudImage Src="images/logo/Group 31.png"></MudImage>
+            </div>
+
+            <MudForm @ref="Form" Model="RegisterDto">
+                <MudTextField @bind-Value="RegisterDto.Email"
+                              Label="E-mail"
+                              Variant="Variant.Outlined"
+                              Class="mb-4"
+                              Required="true"
+                              RequiredError="Email is required"/>
+
+                <MudTextField @bind-Value="RegisterDto.Password"
+                              Label="Пароль"
+                              Variant="Variant.Outlined"
+                              InputType="InputType.Password"
+                              Class="mb-4"
+                              Required="true"
+                              RequiredError="Password is required"/>
+
+                <MudTextField @bind-Value="RegisterDto.UserName"
+                              Label="Повне ім'я користувача"
+                              Variant="Variant.Outlined"
+                              Class="mb-6"
+                              Required="true"
+                              RequiredError="Full name is required"/>
+
+                @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudAlert Severity="Severity.Error" Class="mb-4">@ErrorMessage</MudAlert>
+                }
+
+                @if (success)
+                {
+                <MudAlert Severity="Severity.Success" Class="mb-4">Registration successful!</MudAlert>
+                }
+
+                <MudButton Variant="Variant.Filled"
+                           Style="background-color: #EE542F; color: white;"
+                           FullWidth="true"
+                           Size="Size.Large"
+                           OnClick="CreateAccount"
+                           Disabled="IsProcessing">
+                    @if (IsProcessing)
+                    {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
                     <MudText Class="ms-2">Processing</MudText>
-                }
-                else
-                {
-                    <MudText>Register</MudText>
-                }
-            </MudButton>
-        </MudForm>
+                    }
+                    else
+                    {
+                    <MudText>Зареєструватися</MudText>
+                    }
+                </MudButton>
+            </MudForm>
+        </MudPaper>
     </MudItem>
 </MudGrid>
 
-@if (success)
-{
-    <MudAlert Severity="Severity.Success">Registration successful!</MudAlert>
-}
-@if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <MudAlert Severity="Severity.Error">@ErrorMessage</MudAlert>
-}
+<style>
+    .registration-item {
+        position: absolute;
+        top: 138px;
+        left: 1165px;
+    }
+
+    .cursive-font {
+        font-family: 'Playfair Display', serif;
+    }
+    .position-image {
+        position: absolute;
+    }
+    .position-image:nth-child(1) { /* inspiring-view-morning-light.png */
+        top: 426px;
+        left: 383px;
+        z-index: 3;
+    }
+    .position-image:nth-child(2) { /* handsome-young-man */
+        top: 171px;
+        left: 265px;
+        z-index: 2; 
+    }
+    .position-image:nth-child(3) { /* portrait-young-woman */
+        top: 132px;
+        left: 571px;
+        z-index: 4; 
+    }
+</style>
 
 @code {
     private RegisterDto RegisterDto { get; set; } = new();
@@ -51,7 +129,7 @@
         {
             IsProcessing = true;
             ErrorMessage = string.Empty;
-            
+
             await Form.Validate();
             if (!Form.IsValid)
             {
@@ -63,7 +141,7 @@
             if (result.IsSuccess)
             {
                 success = true;
-                await Task.Delay(1000); // Show success message briefly
+                await Task.Delay(1000);
                 NavigationManager.NavigateTo("login");
             }
             else
@@ -82,4 +160,5 @@
             IsProcessing = false;
         }
     }
+
 }
