@@ -36,14 +36,13 @@ public class AuthService : IAuthService
             {
                 try
                 {
-                    await _localStorage.SetItemAsync(AccessTokenKey, result.Value.AccessToken);
-                    await _localStorage.SetItemAsync(RefreshTokenKey, result.Value.RefreshToken);
+                    await _localStorage.SetItemAsync(AccessTokenKey, result.Value.accessToken);
+                    await _localStorage.SetItemAsync(RefreshTokenKey, result.Value.refreshToken);
                     _logger.LogInformation("Login successful, tokens stored");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Failed to store tokens");
-                    // Продовжуємо роботу, навіть якщо зберегти токени не вдалося
                 }
             }
             

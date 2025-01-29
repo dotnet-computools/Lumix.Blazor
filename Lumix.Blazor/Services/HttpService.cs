@@ -43,12 +43,10 @@ public class HttpService
                 var result = JsonSerializer.Deserialize<T>(content);
                 return ApiResult<T>.Success(result);
             }
-
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
+            
                 await _localStorage.RemoveItemAsync("access_token");
                 await _localStorage.RemoveItemAsync("refresh_token");
-            }
+            
 
             return ApiResult<T>.Failure(content);
         }
@@ -58,13 +56,11 @@ public class HttpService
             return ApiResult<T>.Failure($"Request failed: {ex.Message}");
         }
     }
-
     public async Task<ApiResult<T>> PostAsync<T>(string endpoint, object data)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
         request.Content = JsonContent.Create(data);
         return await SendRequestAsync<T>(request);
     }
-
     
 }
