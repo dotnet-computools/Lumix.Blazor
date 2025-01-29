@@ -1,46 +1,52 @@
 ﻿@page "/register"
+@using Blazored.LocalStorage
 @using Lumix.Blazor.Data
 @using Lumix.Blazor.Services.IServices
-@inject IAuthService AuthService
-@inject NavigationManager NavigationManager
-@inject ILogger<Register> Logger
 
 <MudGrid Class="min-h-screen">
     <MudItem xs="12" sm="6" Class="flex justify-center items-center relative">
-        <MudPaper Class="flex flex-col items-center justify-center space-y-6 mt-8">
-            <MudImage Src="images/auth/inspiring-view-morning-light.png"
-                      Width="256"
-                      Height="321"
-                      Alt="Portrait 1"
-                      Class="rounded-lg position-image" />
-            <MudImage Src="images/auth/handsome-young-man-with-nose-pierced-holding-sunflower-hand-against-grey-backdrop.png"
-                      Width="230"
-                      Height="308"
-                      Alt="Portrait 2"
-                      Class="rounded-lg position-image" />
-            <MudImage Src="images/auth/portrait-young-woman-with-natural-make-up.png"
-                      Width="240"
-                      Height="360"
-                      Alt="Portrait 3"
-                      Class="rounded-lg position-image" />
+        <MudPaper Class="flex flex-col items-center justify-center space-y-6 mt-8 image-gallery" Style="box-shadow: none;">
+            <MudImage @onmouseover="() => HandleImageHover(0)"
+                     @onmouseout="() => HandleImageHoverEnd(0)"
+                     Src="@(activeImages[0] ? "images/auth/morning-variant2.png" : "images/auth/inspiring-view-morning-light.png")"
+                     Width="256"
+                     Height="321"
+                     Alt="Portrait 1"
+                     Class="rounded-lg position-image first-image" />
+            
+            <MudImage @onmouseover="() => HandleImageHover(1)"
+                     @onmouseout="() => HandleImageHoverEnd(1)"
+                     Src="images/auth/handsome-young-man-with-nose-pierced-holding-sunflower-hand-against-grey-backdrop.png"
+                     Width="@(activeImages[1] ? 261 : 230)"
+                     Height="@(activeImages[1] ? 350 : 308)"
+                     Alt="Portrait 2"
+                     Class="rounded-lg position-image second-image" />
+            
+            <MudImage @onmouseover="() => HandleImageHover(2)"
+                     @onmouseout="() => HandleImageHoverEnd(2)"
+                     Src="@(activeImages[2] ? "images/auth/woman-variant2.png" : "images/auth/portrait-young-woman-with-natural-make-up.png")"
+                     Width="240"
+                     Height="360"
+                     Alt="Portrait 3"
+                     Class="rounded-lg position-image third-image" />
         </MudPaper>
     </MudItem>
-    
-    <MudItem xs="12" sm="6" Class="d-flex justify-center items-center registration-item" >
+
+    <MudItem xs="12" sm="6" Class="d-flex justify-center items-center registration-item">
         <MudPaper Class="pa-8 w-full max-w-md" Style="box-shadow: none;">
             <div class="text-center mb-8">
                 <MudImage Src="images/logo/Group 31.png"></MudImage>
             </div>
 
             <MudForm @ref="Form" Model="RegisterDto">
-                <MudTextField @bind-Value="RegisterDto.Email"
+                <MudTextField @bind-Value="RegisterDto.email"
                               Label="E-mail"
                               Variant="Variant.Outlined"
                               Class="mb-4"
                               Required="true"
                               RequiredError="Email is required"/>
 
-                <MudTextField @bind-Value="RegisterDto.Password"
+                <MudTextField @bind-Value="RegisterDto.password"
                               Label="Пароль"
                               Variant="Variant.Outlined"
                               InputType="InputType.Password"
@@ -48,7 +54,7 @@
                               Required="true"
                               RequiredError="Password is required"/>
 
-                <MudTextField @bind-Value="RegisterDto.UserName"
+                <MudTextField @bind-Value="RegisterDto.userName"
                               Label="Повне ім'я користувача"
                               Variant="Variant.Outlined"
                               Class="mb-6"
@@ -57,12 +63,12 @@
 
                 @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                <MudAlert Severity="Severity.Error" Class="mb-4">@ErrorMessage</MudAlert>
+                    <MudAlert Severity="Severity.Error" Class="mb-4">@ErrorMessage</MudAlert>
                 }
 
                 @if (success)
                 {
-                <MudAlert Severity="Severity.Success" Class="mb-4">Registration successful!</MudAlert>
+                    <MudAlert Severity="Severity.Success" Class="mb-4">Успішний вхід!</MudAlert>
                 }
 
                 <MudButton Variant="Variant.Filled"
@@ -73,12 +79,12 @@
                            Disabled="IsProcessing">
                     @if (IsProcessing)
                     {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
-                    <MudText Class="ms-2">Processing</MudText>
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                        <MudText Class="ms-2">Обробка...</MudText>
                     }
                     else
                     {
-                    <MudText>Зареєструватися</MudText>
+                        <MudText>Увійти</MudText>
                     }
                 </MudButton>
             </MudForm>
@@ -96,69 +102,39 @@
     .cursive-font {
         font-family: 'Playfair Display', serif;
     }
+
+    .image-gallery {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+    }
+
     .position-image {
         position: absolute;
+        transition: all 0.3s ease-in-out;
     }
-    .position-image:nth-child(1) { /* inspiring-view-morning-light.png */
+
+    .first-image {
         top: 426px;
         left: 383px;
         z-index: 3;
     }
-    .position-image:nth-child(2) { /* handsome-young-man */
+
+    .second-image {
         top: 171px;
         left: 265px;
-        z-index: 2; 
+        z-index: 2;
     }
-    .position-image:nth-child(3) { /* portrait-young-woman */
+
+    .third-image {
         top: 132px;
         left: 571px;
-        z-index: 4; 
+        z-index: 4;
     }
 </style>
 
+
 @code {
-    private RegisterDto RegisterDto { get; set; } = new();
-    private bool success { get; set; }
-    private string ErrorMessage { get; set; }
-    private bool IsProcessing { get; set; }
-    private MudForm Form { get; set; }
-
-    private async Task CreateAccount()
-    {
-        try
-        {
-            IsProcessing = true;
-            ErrorMessage = string.Empty;
-
-            await Form.Validate();
-            if (!Form.IsValid)
-            {
-                ErrorMessage = "Please fill in all required fields correctly.";
-                return;
-            }
-
-            var result = await AuthService.RegisterAsync(RegisterDto);
-            if (result.IsSuccess)
-            {
-                success = true;
-                await Task.Delay(1000);
-                NavigationManager.NavigateTo("login");
-            }
-            else
-            {
-                ErrorMessage = result.ErrorMessage;
-                Logger.LogError("Registration failed: {ErrorMessage}", result.ErrorMessage);
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = "An unexpected error occurred. Please try again.";
-            Logger.LogError(ex, "Unhandled exception during registration");
-        }
-        finally
-        {
-            IsProcessing = false;
-        }
-    }
+   
 
 }

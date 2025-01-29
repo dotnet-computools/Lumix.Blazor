@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Security;
+using System.Text.Json;
 using Blazored.LocalStorage;
 using Lumix.Blazor.Data;
 using Lumix.Blazor.Services;
@@ -15,6 +16,15 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
+
+//JSON Rules
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
+
 
 // HTTP and API 
 builder.Services.AddHttpClient<HttpService>(client =>

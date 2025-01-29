@@ -2,29 +2,33 @@
 @using Blazored.LocalStorage
 @using Lumix.Blazor.Data
 @using Lumix.Blazor.Services.IServices
-@inject IAuthService AuthService
-@inject NavigationManager NavigationManager
-@inject ILogger<Login> Logger
-@inject ILocalStorageService LocalStorage
 
 <MudGrid Class="min-h-screen">
     <MudItem xs="12" sm="6" Class="flex justify-center items-center relative">
-        <MudPaper Class="flex flex-col items-center justify-center space-y-6 mt-8">
-            <MudImage Src="images/auth/inspiring-view-morning-light.png"
-                      Width="256"
-                      Height="321"
-                      Alt="Portrait 1"
-                      Class="rounded-lg position-image" />
-            <MudImage Src="images/auth/handsome-young-man-with-nose-pierced-holding-sunflower-hand-against-grey-backdrop.png"
-                      Width="230"
-                      Height="308"
-                      Alt="Portrait 2"
-                      Class="rounded-lg position-image" />
-            <MudImage Src="images/auth/portrait-young-woman-with-natural-make-up.png"
-                      Width="240"
-                      Height="360"
-                      Alt="Portrait 3"
-                      Class="rounded-lg position-image" />
+        <MudPaper Class="flex flex-col items-center justify-center space-y-6 mt-8 image-gallery" Style="box-shadow: none;">
+            <MudImage @onmouseover="() => HandleImageHover(0)"
+                     @onmouseout="() => HandleImageHoverEnd(0)"
+                     Src="@(activeImages[0] ? "images/auth/morning-variant2.png" : "images/auth/inspiring-view-morning-light.png")"
+                     Width="256"
+                     Height="321"
+                     Alt="Portrait 1"
+                     Class="rounded-lg position-image first-image" />
+            
+            <MudImage @onmouseover="() => HandleImageHover(1)"
+                     @onmouseout="() => HandleImageHoverEnd(1)"
+                     Src="images/auth/handsome-young-man-with-nose-pierced-holding-sunflower-hand-against-grey-backdrop.png"
+                     Width="@(activeImages[1] ? 261 : 230)"
+                     Height="@(activeImages[1] ? 350 : 308)"
+                     Alt="Portrait 2"
+                     Class="rounded-lg position-image second-image" />
+            
+            <MudImage @onmouseover="() => HandleImageHover(2)"
+                     @onmouseout="() => HandleImageHoverEnd(2)"
+                     Src="@(activeImages[2] ? "images/auth/woman-variant2.png" : "images/auth/portrait-young-woman-with-natural-make-up.png")"
+                     Width="240"
+                     Height="360"
+                     Alt="Portrait 3"
+                     Class="rounded-lg position-image third-image" />
         </MudPaper>
     </MudItem>
 
@@ -34,15 +38,15 @@
                 <MudImage Src="images/logo/Group 31.png"></MudImage>
             </div>
 
-            <MudForm @ref="Form" Model="LoginDto">
-                <MudTextField @bind-Value="LoginDto.Email"
+            <MudForm Model="LoginDto" @ref="Form">
+                <MudTextField @bind-Value="LoginDto.email"
                               Label="E-mail"
                               Variant="Variant.Outlined"
                               Class="mb-4"
                               Required="true"
                               RequiredError="Email is required"/>
 
-                <MudTextField @bind-Value="LoginDto.Password"
+                <MudTextField @bind-Value="LoginDto.password"
                               Label="Пароль"
                               Variant="Variant.Outlined"
                               InputType="InputType.Password"
@@ -52,12 +56,12 @@
 
                 @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                <MudAlert Severity="Severity.Error" Class="mb-4">@ErrorMessage</MudAlert>
+                    <MudAlert Severity="Severity.Error" Class="mb-4">@ErrorMessage</MudAlert>
                 }
 
                 @if (success)
                 {
-                <MudAlert Severity="Severity.Success" Class="mb-4">Успішний вхід!</MudAlert>
+                    <MudAlert Severity="Severity.Success" Class="mb-4">Успішний вхід!</MudAlert>
                 }
 
                 <MudButton Variant="Variant.Filled"
@@ -68,12 +72,12 @@
                            Disabled="IsProcessing">
                     @if (IsProcessing)
                     {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
-                    <MudText Class="ms-2">Обробка...</MudText>
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                        <MudText Class="ms-2">Обробка...</MudText>
                     }
                     else
                     {
-                    <MudText>Увійти</MudText>
+                        <MudText>Увійти</MudText>
                     }
                 </MudButton>
             </MudForm>
@@ -92,97 +96,33 @@
         font-family: 'Playfair Display', serif;
     }
 
-    .position-image {
-        position: absolute;
+    .image-gallery {
+        position: relative;
+        width: 100%;
+        height: 100vh;
     }
 
-    .position-image:nth-child(1) {
+    .position-image {
+        position: absolute;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .first-image {
         top: 426px;
         left: 383px;
         z-index: 3;
     }
 
-    .position-image:nth-child(2) {
+    .second-image {
         top: 171px;
         left: 265px;
         z-index: 2;
     }
 
-    .position-image:nth-child(3) {
+    .third-image {
         top: 132px;
         left: 571px;
         z-index: 4;
     }
 </style>
 
-@code {
-    private LoginDto LoginDto { get; set; } = new();
-    private bool success;
-    private string ErrorMessage = string.Empty;
-    private bool IsProcessing;
-    private MudForm Form { get; set; }
-    private bool firstRender = true;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            this.firstRender = false;
-            try
-            {
-                if (await AuthService.IsAuthenticated())
-                {
-                    NavigationManager.NavigateTo("/dashboard");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Error checking authentication status");
-            }
-
-            StateHasChanged();
-        }
-    }
-
-    private async Task HandleLogin()
-    {
-        try
-        {
-            IsProcessing = true;
-            ErrorMessage = string.Empty;
-
-            await Form.Validate();
-            if (!Form.IsValid)
-            {
-                ErrorMessage = "Будь ласка, заповніть усі обов'язкові поля.";
-                return;
-            }
-
-            var result = await AuthService.LoginAsync(LoginDto);
-            if (result.IsSuccess)
-            {
-                success = true;
-                Logger.LogInformation("User successfully logged in: {Email}", LoginDto.Email);
-
-                await Task.Delay(1000);
-                NavigationManager.NavigateTo("/dashboard");
-            }
-            else
-            {
-                ErrorMessage = result.ErrorMessage;
-                Logger.LogWarning("Login failed for user {Email}: {ErrorMessage}",
-                    LoginDto.Email, result.ErrorMessage);
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = "Error. Try again.";
-            Logger.LogError(ex, "Unhandled exception during login for user {Email}", LoginDto.Email);
-        }
-        finally
-        {
-            IsProcessing = false;
-        }
-    }
-
-}

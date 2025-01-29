@@ -28,7 +28,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            _logger.LogInformation($"Attempting login for user: {loginDto.Email}");
+            _logger.LogInformation($"Attempting login for user: {loginDto.email}");
             
             var result = await _httpService.PostAsync<LoginResponseDto>($"{_baseUrl}/login", loginDto);
             
@@ -99,29 +99,24 @@ public class AuthService : IAuthService
     {
         try
         {
-            _logger.LogInformation($"Starting registration for {registerDto.Email}");
+            _logger.LogInformation($"Starting registration for {registerDto.email}");
             
-            var result = await _httpService.PostAsync<RegisterResponse>($"{_baseUrl}/register", registerDto);
+            var result = await _httpService.PostAsync<RegisterDto>($"{_baseUrl}/register", registerDto);
             
             if (result.IsSuccess)
             {
-                _logger.LogInformation($"Registration successful for {registerDto.Email}");
+                _logger.LogInformation($"Registration successful for {registerDto.email}");
                 return ApiResult<RegisterDto>.Success(registerDto);
             }
             
-            _logger.LogWarning($"Registration failed for {registerDto.Email}: {result.ErrorMessage}");
+            _logger.LogWarning($"Registration failed for {registerDto.email}: {result.ErrorMessage}");
             return ApiResult<RegisterDto>.Failure(result.ErrorMessage);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Exception during registration for {registerDto.Email}");
+            _logger.LogError(ex, $"Exception during registration for {registerDto.email}");
             return ApiResult<RegisterDto>.Failure(ex.Message);
         }
     }
 }
 
-public class RegisterResponse
-{
-    public bool Success { get; set; }
-    public string Message { get; set; }
-}

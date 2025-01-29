@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Blazored.LocalStorage;
+using Blazored.LocalStorage;    
 using Lumix.Blazor.Models;
 
 public class HttpService
@@ -9,7 +9,7 @@ public class HttpService
     private static readonly HttpClient _httpClient = new HttpClient();
     private readonly ILogger<HttpService> _logger;
     private readonly ILocalStorageService _localStorage;
-
+    
     public HttpService(
         ILogger<HttpService> logger,
         ILocalStorageService localStorage)
@@ -43,10 +43,6 @@ public class HttpService
                 var result = JsonSerializer.Deserialize<T>(content);
                 return ApiResult<T>.Success(result);
             }
-            
-                await _localStorage.RemoveItemAsync("access_token");
-                await _localStorage.RemoveItemAsync("refresh_token");
-            
 
             return ApiResult<T>.Failure(content);
         }
