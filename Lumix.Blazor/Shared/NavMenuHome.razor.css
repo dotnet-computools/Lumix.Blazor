@@ -1,0 +1,17 @@
+﻿.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.buttons-section {
+    display: flex;
+    align-items: center;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.button-container {
+    padding-left: 10px;
+    padding-right: 10px;
+    gap: 10px;
+}
