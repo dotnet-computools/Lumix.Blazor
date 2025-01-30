@@ -1,0 +1,35 @@
+﻿@page "/profile"
+
+@using Lumix.Blazor.Components.Profile;
+
+<div class="profile-container">
+    <div class="profile-picture-container">
+        <img src="images/icons/profile/avatar_frame.png" alt="picture_frame" />
+        <img src="images//icons/profile/empty_avatar.png" alt="empty_picture" />
+    </div>
+
+    <div class="nickname-container">
+        <p>@_userNickname</p>
+    </div>
+
+    <div class="profile-statistic-container">
+        <div class="follows-statistic-container">
+            <p>@_followers</p> <p>підписників</p>
+            <img src="images/icons/profile/separator.png" />
+            <p>@_follows</p> <p>підписок</p>
+        </div>
+        <div class="follows-statistic-container">
+            <p>всього</p> <p>@_postCount</p> <p>допис</p>
+        </div>
+    </div>
+
+    <EmptyPhotoTableComponent />
+</div>
+
+
+@code {
+    private readonly string _userNickname = "User";
+    private readonly string _followers = "30";
+    private readonly string _follows = "18";
+    private readonly string _postCount = "51";
+}

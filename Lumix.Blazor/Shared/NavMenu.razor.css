@@ -1,62 +1,56 @@
-.navbar-toggler {
-    background-color: rgba(255, 255, 255, 0.1);
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: white;
 }
 
-.top-row {
-    height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+.sidebar-elements {
+    display: flex;
+    padding-left: 30px;
+    gap: 70px;
+    align-items: flex-start;
+    flex-direction: column;
 }
 
-.navbar-brand {
-    font-size: 1.1rem;
+.sidebar-hyperlinks-container {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.oi {
-    width: 2rem;
-    font-size: 1.1rem;
-    vertical-align: text-top;
-    top: -2px;
+.menu-item {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    padding: 10px;
+    color: black;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    font-family: 'Sofia', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    align-items: flex-start;
 }
 
-.nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem;
-}
-
-    .nav-item:first-of-type {
-        padding-top: 1rem;
+    .menu-item img {
+        width: 24px;
+        height: 24px;
     }
 
-    .nav-item:last-of-type {
-        padding-bottom: 1rem;
+    .menu-item:hover{
+        color: orangered;
     }
 
-    .nav-item ::deep a {
-        color: #d7d7d7;
-        border-radius: 4px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-    }
-
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.25);
-    color: white;
+.menu-header {
+    padding: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px solid #34495e;
 }
 
-.nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
-
-@media (min-width: 641px) {
-    .navbar-toggler {
-        display: none;
-    }
-
-    .collapse {
-        /* Never collapse the sidebar for wide screens */
-        display: block;
-    }
+.logo-container {
+    display: flex;
+    align-items: center;
 }
