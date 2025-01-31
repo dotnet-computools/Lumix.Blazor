@@ -1,0 +1,36 @@
+﻿.centered-objects {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.main-h3 {
+    font-family: 'Playfair Display', sans-serif;
+    color: black;
+    font-size: 120px;
+}
+
+.secondary-p {
+    font-family: 'Sofia', sans-serif;
+    font-size: 20px;
+    color: black;
+    margin-bottom: 100px;
+}
+
+.photo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    overflow: hidden;
+}
+
+    .photo-container img {
+        height: 200px;
+        width: auto;
+        object-fit: cover;
+        border-radius: 5px;
+    }
