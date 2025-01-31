@@ -1,0 +1,78 @@
+@page "/new"
+@using Lumix.Blazor.Services.IServices
+@inject IPhotoService PhotoService
+@inject ILogger<PhotoUpload> Logger
+
+<h3>Upload Photo</h3>
+<input type="text" placeholder="Title" @bind="Title" />
+<input type="text" placeholder="Add Tag" @bind="NewTag" @onkeydown="HandleTagInput" />
+<button @onclick="AddTag">Add Tag</button>
+<ul>
+    @foreach (var tag in Tags)
+    {
+        <li>@tag <button @onclick="() => RemoveTag(tag)">X</button></li>
+    }
+</ul>
+<input type="file" @onchange="HandleFileSelected" />
+<button @onclick="UploadPhoto">Upload</button>
+
+@code {
+    private string Title { get; set; } = string.Empty;
+    private string NewTag { get; set; } = string.Empty;
+    private List<string> Tags { get; set; } = new();
+    private Stream? SelectedFileStream;
+    private string? FileName;
+
+    private void HandleFileSelected(ChangeEventArgs e)
+    {
+        var file = e.Value as IBrowserFile;
+        if (file != null)
+        {
+            SelectedFileStream = file.OpenReadStream();
+            FileName = file.Name;
+        }
+    }
+
+    private void HandleTagInput(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(NewTag))
+        {
+            AddTag();
+        }
+    }
+
+    private void AddTag()
+    {
+        if (!string.IsNullOrWhiteSpace(NewTag))
+        {
+            Tags.Add(NewTag);
+            NewTag = string.Empty;
+        }
+    }
+
+    private void RemoveTag(string tag)
+    {
+        Tags.Remove(tag);
+    }
+
+    private async Task UploadPhoto()
+    {
+        if (SelectedFileStream == null || string.IsNullOrWhiteSpace(Title))
+        {
+            Logger.LogWarning("Photo or title is missing");
+            return;
+        }
+
+        Logger.LogInformation("Uploading photo...");
+        var result = await PhotoService.UploadPhotoAsync(SelectedFileStream, FileName!, Title, Tags);
+        
+        if (result.IsSuccess)
+        {
+            Logger.LogInformation("Photo uploaded successfully");
+        }
+        else
+        {
+            Logger.LogWarning("Failed to upload photo: {Error}", result.ErrorMessage);
+        }
+    }
+}
