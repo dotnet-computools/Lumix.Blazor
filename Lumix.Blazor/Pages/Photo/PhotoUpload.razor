@@ -1,78 +1,143 @@
-@page "/new"
+@page "/photo-upload"
+@using Lumix.Blazor.Data
 @using Lumix.Blazor.Services.IServices
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IPhotoService PhotoService
 @inject ILogger<PhotoUpload> Logger
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3>Upload Photo</h3>
-<input type="text" placeholder="Title" @bind="Title" />
-<input type="text" placeholder="Add Tag" @bind="NewTag" @onkeydown="HandleTagInput" />
-<button @onclick="AddTag">Add Tag</button>
-<ul>
-    @foreach (var tag in Tags)
-    {
-        <li>@tag <button @onclick="() => RemoveTag(tag)">X</button></li>
-    }
-</ul>
-<input type="file" @onchange="HandleFileSelected" />
-<button @onclick="UploadPhoto">Upload</button>
+    
+        <div class="container mx-auto p-4">
+            <h3 class="text-2xl mb-4">Upload Photo</h3>
+
+            <EditForm Model="uploadModel" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator/>
+
+                <div class="mb-4">
+                    <label for="title" class="block mb-2">Title:</label>
+                    <InputText id="title"
+                               @bind-Value="uploadModel.title"
+                               class="w-full p-2 border rounded"/>
+                </div>
+
+                <div class="mb-4">
+                    <label for="photoFile" class="block mb-2">Photo:</label>
+                    <InputFile id="photoFile"
+                               OnChange="HandleFileSelected"
+                               accept=".jpg,.jpeg,.png"
+                               class="w-full p-2 border rounded"/>
+                    @if (selectedFile != null)
+                    {
+                        <div class="mt-2 text-sm">Selected: @selectedFile.Name</div>
+                    }
+                </div>
+
+                <div class="mb-4">
+                    <label for="tags" class="block mb-2">Tags (comma separated):</label>
+                    <InputText id="tags"
+                               @bind-Value="tagsInput"
+                               class="w-full p-2 border rounded"/>
+                </div>
+
+                <button type="submit"
+                        disabled="@isLoading"
+                        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400">
+                    @(isLoading ? "Uploading..." : "Upload Photo")
+                </button>
+            </EditForm>
+
+            @if (uploadSuccess)
+            {
+                <div class="mt-4 p-4 bg-green-100 text-green-700 rounded">
+                    Photo uploaded successfully!
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="mt-4 p-4 bg-red-100 text-red-700 rounded">
+                    Error: @errorMessage
+                    @if (errorMessage.Contains("Please log in"))
+                    {
+                        <button @onclick="RedirectToLogin" class="ml-2 text-blue-500 underline">
+                            Log in
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    
+        <div class="p-4">
+            <p>Please log in to upload photos.</p>
+            <button @onclick="RedirectToLogin" class="text-blue-500 underline">
+                Log in
+            </button>
+        </div>
+    
 
 @code {
-    private string Title { get; set; } = string.Empty;
-    private string NewTag { get; set; } = string.Empty;
-    private List<string> Tags { get; set; } = new();
-    private Stream? SelectedFileStream;
-    private string? FileName;
+    private PhotoUploadDto uploadModel = new();
+    private IBrowserFile? selectedFile;
+    private string tagsInput = string.Empty;
+    private bool isLoading;
+    private bool uploadSuccess;
+    private string? errorMessage;
 
-    private void HandleFileSelected(ChangeEventArgs e)
+    private void RedirectToLogin()
     {
-        var file = e.Value as IBrowserFile;
-        if (file != null)
-        {
-            SelectedFileStream = file.OpenReadStream();
-            FileName = file.Name;
-        }
+        NavigationManager.NavigateTo("/login");
     }
 
-    private void HandleTagInput(KeyboardEventArgs e)
+    private void HandleFileSelected(InputFileChangeEventArgs e)
     {
-        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(NewTag))
-        {
-            AddTag();
-        }
+        selectedFile = e.File;
+        uploadModel.photoFile = selectedFile;
     }
 
-    private void AddTag()
+    private async Task HandleValidSubmit()
     {
-        if (!string.IsNullOrWhiteSpace(NewTag))
+        if (uploadModel.photoFile == null)
         {
-            Tags.Add(NewTag);
-            NewTag = string.Empty;
-        }
-    }
-
-    private void RemoveTag(string tag)
-    {
-        Tags.Remove(tag);
-    }
-
-    private async Task UploadPhoto()
-    {
-        if (SelectedFileStream == null || string.IsNullOrWhiteSpace(Title))
-        {
-            Logger.LogWarning("Photo or title is missing");
+            errorMessage = "Please select a file to upload";
             return;
         }
 
-        Logger.LogInformation("Uploading photo...");
-        var result = await PhotoService.UploadPhotoAsync(SelectedFileStream, FileName!, Title, Tags);
-        
-        if (result.IsSuccess)
+        try
         {
-            Logger.LogInformation("Photo uploaded successfully");
+            isLoading = true;
+            uploadSuccess = false;
+            errorMessage = null;
+
+            uploadModel.tags = !string.IsNullOrWhiteSpace(tagsInput)
+                ? tagsInput.Split(',')
+                    .Select(t => t.Trim())
+                    .Where(t => !string.IsNullOrEmpty(t))
+                    .ToList()
+                : null;
+
+            var result = await PhotoService.UploadPhotoAsync(uploadModel);
+
+            if (result.IsSuccess)
+            {
+                uploadSuccess = true;
+                uploadModel = new PhotoUploadDto();
+                selectedFile = null;
+                tagsInput = string.Empty;
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Logger.LogWarning("Failed to upload photo: {Error}", result.ErrorMessage);
+            Logger.LogError(ex, "Error during photo upload");
+            errorMessage = "An unexpected error occurred during upload.";
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
+
 }

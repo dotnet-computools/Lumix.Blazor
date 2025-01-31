@@ -1,28 +1,34 @@
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Blazored.LocalStorage;    
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Lumix.Blazor.Models;
 
 public class HttpService
 {
     private static readonly HttpClient _httpClient = new HttpClient();
     private readonly ILogger<HttpService> _logger;
-    private readonly ILocalStorageService _localStorage;
-    
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
     public HttpService(
         ILogger<HttpService> logger,
-        ILocalStorageService localStorage)
+        IHttpContextAccessor httpContextAccessor)
     {
         _logger = logger;
-        _localStorage = localStorage;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    private async Task<ApiResult<T>> SendRequestAsync<T>(HttpRequestMessage request)
+    public async Task<ApiResult<T?>> GetAsync<T>(string uri)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, uri);
+        return await SendRequestAsync<T>(request);
+    }
+
+    public async Task<ApiResult<T>> SendRequestAsync<T>(HttpRequestMessage request)
     {
         try
         {
-            var token = await _localStorage.GetItemAsync<string>("access_token");
+            var token = _httpContextAccessor.HttpContext?.Request.Cookies["accessToken"];
             if (!string.IsNullOrEmpty(token))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -52,11 +58,11 @@ public class HttpService
             return ApiResult<T>.Failure($"Request failed: {ex.Message}");
         }
     }
+
     public async Task<ApiResult<T>> PostAsync<T>(string endpoint, object data)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
         request.Content = JsonContent.Create(data);
         return await SendRequestAsync<T>(request);
     }
-    
 }

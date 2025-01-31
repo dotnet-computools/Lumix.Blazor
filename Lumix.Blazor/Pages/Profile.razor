@@ -1,6 +1,49 @@
-@page "/Profile"
-<h3>Profile</h3>
+@page "/profile"
+@using Lumix.Blazor.Services.IServices
+@inject IAuthService AuthService
+@inject ILogger<Profile> Logger
+
+<h3>User Profile</h3>
+
+@if (userId.HasValue)
+{
+    <p><strong>User ID:</strong> @userId.Value</p>
+}
+else if (isLoading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p>Error loading profile.</p>
+}
 
 @code {
-    
+    private Guid? userId;
+    private bool isLoading = true;
+    private bool isInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isInitialized)
+        {
+            isInitialized = true;
+            Logger.LogInformation("Initializing Profile page");
+            
+            var result = await AuthService.GetCurrentUserAsync();
+            
+            if (result.IsSuccess && result.Value.HasValue)
+            {
+                userId = result.Value;
+                Logger.LogInformation($"Fetched User ID: {userId}");
+            }
+            else
+            {
+                Logger.LogWarning($"Failed to fetch user profile: {result.ErrorMessage}");
+            }
+
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
 }

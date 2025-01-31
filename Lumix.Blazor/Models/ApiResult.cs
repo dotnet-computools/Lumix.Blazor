@@ -2,13 +2,15 @@ namespace Lumix.Blazor.Models;
 
 public class ApiResult<T>
 {
-    public T? Value { get; private set; }
+    public T? Value { get; set; } 
     public bool IsFailed => !IsSuccess;
-    public bool IsSuccess { get; private set; }
-    public string ErrorMessage { get; private set; } = string.Empty;
+    public bool IsSuccess { get; set; } 
+    public string ErrorMessage { get; set; } = string.Empty;
 
-    public static ApiResult<T> Success(T value) => new ApiResult<T> { Value = value, IsSuccess = true };
-    public static ApiResult<T> Failure(string errorMessage) => new ApiResult<T> { IsSuccess = false, ErrorMessage = errorMessage };
+    public static ApiResult<T> Success(T value) => new() { Value = value, IsSuccess = true };
+    public static ApiResult<T> Failure(string errorMessage) => new() { IsSuccess = false, ErrorMessage = errorMessage };
 
-    private ApiResult() { }
+    public ApiResult()
+    {
+    }
 }

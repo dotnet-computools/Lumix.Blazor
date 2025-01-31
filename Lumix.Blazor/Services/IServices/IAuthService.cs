@@ -11,4 +11,5 @@ public interface IAuthService
     Task Logout();
     Task<bool> IsAuthenticated();
     Task<string?> GetAccessToken();
+    Task<ApiResult<Guid?>> GetCurrentUserAsync();
 }
