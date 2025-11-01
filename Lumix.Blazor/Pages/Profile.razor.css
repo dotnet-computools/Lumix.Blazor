@@ -1,0 +1,66 @@
+﻿.profile-container {
+    display: flex;
+    align-content: start;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: auto;
+    margin-top: 10%;
+}
+
+.profile-picture-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 108px;
+    height: 108px;
+}
+
+    .profile-picture-container img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+.nickname-container {
+    margin: 15px 0px 15px 0px;
+}
+
+    .nickname-container p {
+        font-family: 'Bebas Neue', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        color: black;
+    }
+
+.profile-statistic-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+    .profile-statistic-container p {
+        font-family: 'Sofia Sans', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: black;
+        margin: 5px 0px 5px 0px;
+    }
+
+    .profile-statistic-container img {
+        display: flex;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+    }
+
+.follows-statistic-container {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 5px;
+}
+
