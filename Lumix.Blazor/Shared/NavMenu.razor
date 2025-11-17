@@ -1,32 +1,44 @@
 ﻿
 
-<div class="sidebar">
-    <div class="sidebar-elements">
-        <div class="logo-container">
-            <img src="images/logo.png" alt="logo_icon" />
-        </div>
 
-        <div class="sidebar-hyperlinks-container">
-            <a href="/" class="menu-item">
-                <img src="images/icons/Home.png" alt="feed_icon" />
-                Стрічка
-            </a>
+<div class="lumix-sidebar-root">
 
-            <a href="/" class="menu-item">
-                <img src="images/icons/Search.png" alt="feed_icon" />
-                Пошук
-            </a>
-
-            <a href="/" class="menu-item">
-                <img src="images/icons/User.png" alt="user_icon" />
-                Профіль
-            </a>
-
-            <a href="/" class="menu-item">
-                <img src="images/icons/Settings.png" alt="post_icon" />
-                Створити пост
-            </a>
-        </div>
+    <div class="lumix-logo" @onclick="ToggleDrawer" style="cursor: pointer;">
+        <img src="images/logo.png" alt="logo_icon" />
     </div>
 
+    <MudDrawer @bind-Open="IsDrawerOpen"
+               Variant="DrawerVariant.Responsive"
+               Elevation="0"
+               Anchor="Anchor.Start"
+               Class="lumix-drawer">
+
+        <MudNavMenu Class="sidebar-hyperlinks-container">
+            <MudNavLink Href="/" Class="menu-item" Match="NavLinkMatch.All">
+                <img src="images/icons/Home.png" />
+                Стрічка
+            </MudNavLink>
+
+            <MudNavLink Href="/search" Class="menu-item">
+                <img src="images/icons/Search.png" />
+                Пошук
+            </MudNavLink>
+
+            <MudNavLink Href="/profile" Class="menu-item">
+                <img src="images/icons/User.png" />
+                Профіль
+            </MudNavLink>
+
+            <MudNavLink Href="/posts/create" Class="menu-item">
+                <img src="images/icons/Settings.png" />
+                Створити пост
+            </MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
 </div>
+
+@code {
+    public bool IsDrawerOpen { get; set; } = true;
+    void ToggleDrawer() => IsDrawerOpen = !IsDrawerOpen;
+}
