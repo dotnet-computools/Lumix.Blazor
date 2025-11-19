@@ -85,7 +85,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            return await Task.FromResult(_httpContextAccessor.HttpContext?.Request.Cookies[accessToken]);
+            return await _jsRuntime.InvokeAsync<string?>("getCookie", accessToken);
         }
         catch (Exception ex)
         {
@@ -127,8 +127,8 @@ public class AuthService : IAuthService
                 Expires = DateTime.UtcNow.AddDays(-1)
             };
 
-            _httpContextAccessor.HttpContext?.Response.Cookies.Append(accessToken, "", options);
-            _httpContextAccessor.HttpContext?.Response.Cookies.Append(refreshToken, "", options);
+            await _jsRuntime.InvokeVoidAsync("eraseCookie", accessToken);
+            await _jsRuntime.InvokeVoidAsync("eraseCookie", refreshToken);
 
             _logger.LogInformation("User logged out, tokens removed from cookies");
         }
