@@ -1,24 +1,4 @@
-.sidebar {
-    width: 250px;
-    height: 100vh;
-    background-color: white;
-}
-
-.sidebar-elements {
-    display: flex;
-    padding-left: 30px;
-    gap: 70px;
-    align-items: flex-start;
-    flex-direction: column;
-}
-
-.sidebar-hyperlinks-container {
-    display: flex;
-    align-items: flex-start;
-    width: 100%;
-    flex-direction: column;
-    gap: 15px;
-}
+﻿
 
 .menu-item {
     display: flex;
@@ -34,14 +14,14 @@
     align-items: flex-start;
 }
 
-    .menu-item img {
-        width: 24px;
-        height: 24px;
-    }
+.menu-item img {
+    width: 24px;
+    height: 24px;
+}
 
-    .menu-item:hover{
-        color: orangered;
-    }
+.menu-item:hover {
+    color: orangered;
+}
 
 .menu-header {
     padding: 20px;
@@ -54,3 +34,17 @@
     display: flex;
     align-items: center;
 }
+
+.buttons-section {
+    display: flex;
+    align-items: center;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.button-container {
+    padding-left: 10px;
+    padding-right: 10px;
+    gap: 10px;
+}
+
