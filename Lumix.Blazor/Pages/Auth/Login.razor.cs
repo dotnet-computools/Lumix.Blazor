@@ -1,7 +1,9 @@
 using Blazored.LocalStorage;
 using Lumix.Blazor.Data;
+using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 
 namespace Lumix.Blazor.Pages.Auth
@@ -12,6 +14,7 @@ namespace Lumix.Blazor.Pages.Auth
         [Inject] private NavigationManager NavigationManager { get; set; } = default!;
         [Inject] private ILogger<Login> Logger { get; set; } = default!;
         [Inject] private ILocalStorageService LocalStorage { get; set; } = default!;
+        [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
         private LoginDto LoginDto { get; set; } = new();
         private bool success;
@@ -72,10 +75,14 @@ namespace Lumix.Blazor.Pages.Auth
                 if (result.IsSuccess)
                 {
                     success = true;
+                    if (AuthStateProvider is CustomAuthenticationStateProvider custom)
+                    {
+                        custom.NotifyUserAuthenticationStateChanged();
+                    }
                     Logger.LogInformation("User successfully logged in: {Email}", LoginDto.email);
 
                     await Task.Delay(1000);
-                    NavigationManager.NavigateTo("/dashboard");
+                    NavigationManager.NavigateTo("/");
                 }
                 else
                 {
