@@ -1,32 +1,103 @@
-﻿
+﻿<style>
+    .mud-button-root.nav-menu-button {
+        border-width: 2px !important;
+        border-color: orangered !important;
+        font-family: 'Sofia', sans-serif;
+        font-weight: 400;
+        padding-left: 10px;
+        padding-right: 10px;
+        text-transform: none;
+        font-size: 16px;
+        box-shadow: none;
+    }
 
-<div class="sidebar">
-    <div class="sidebar-elements">
-        <div class="logo-container">
-            <img src="images/logo.png" alt="logo_icon" />
-        </div>
+    .mud-button-root.login-button {
+        color: orangered !important;
+        width: 120px;
+        height: 38px;
+    }
 
-        <div class="sidebar-hyperlinks-container">
-            <a href="/" class="menu-item">
-                <img src="images/icons/Home.png" alt="feed_icon" />
-                Стрічка
-            </a>
+    .mud-button-root.login-button:hover {
+        background-color: orangered !important;
+        color: black !important;
+        border: solid !important;
+        border-width: 2px;
+        border-color: black;
+    }
 
-            <a href="/" class="menu-item">
-                <img src="images/icons/Search.png" alt="feed_icon" />
-                Пошук
-            </a>
+    .mud-button-root.register-button {
+        background-color: orangered !important;
+        color: white !important;
+        width: 223px;
+        height: 38px;
+    }
 
-            <a href="/" class="menu-item">
-                <img src="images/icons/User.png" alt="user_icon" />
-                Профіль
-            </a>
+    .mud-button-root.register-button:hover {
+        background-color: orangered !important;
+        color: black !important;
+        border: solid !important;
+        border-width: 2px;
+        border-color: black;
+    }
 
-            <a href="/" class="menu-item">
-                <img src="images/icons/Settings.png" alt="post_icon" />
-                Створити пост
-            </a>
-        </div>
+</style>
+
+
+<MudAppBar Elevation="0" Style="background-color: white;">
+    <div class="logo-container" @onclick="ToggleDrawer">
+        <img src="images/logo.png" alt="logo_icon" />
     </div>
 
-</div>
+    <MudSpacer />
+
+    <div class="buttons-section">
+        <div class="button-container">
+            <MudButton Variant="Variant.Outlined" Class="nav-menu-button login-button" Href="/login">
+                Увійти
+            </MudButton>
+        </div>
+        <MudSpacer />
+        <div class="button-container">
+            <MudButton Variant="Variant.Filled" Class="nav-menu-button register-button" Href="/register">
+                Зареєструватися
+            </MudButton>
+        </div>
+    </div>
+</MudAppBar>
+
+<MudDrawer @bind-Open="IsDrawerOpen"
+           Variant="DrawerVariant.Responsive"
+           Elevation="0"
+           Anchor="Anchor.Start"
+           ClipMode="DrawerClipMode.Always">
+
+    <MudNavMenu Class="mt-10">
+        <MudStack Row="false" Spacing="2">
+            <MudNavLink Href="/" Class="menu-item" Match="NavLinkMatch.All">
+                <img src="images/icons/Home.png" />
+                Стрічка
+            </MudNavLink>
+
+            <MudNavLink Href="/search" Class="menu-item">
+                <img src="images/icons/Search.png" />
+                Пошук
+            </MudNavLink>
+
+            <MudNavLink Href="/profile" Class="menu-item">
+                <img src="images/icons/User.png" />
+                Профіль
+            </MudNavLink>
+
+            <MudNavLink Href="/posts/create" Class="menu-item">
+                <img src="images/icons/Settings.png" />
+                Створити пост
+            </MudNavLink>
+        </MudStack>
+    </MudNavMenu>
+</MudDrawer>
+
+
+@code {
+    public bool IsDrawerOpen { get; set; } = true;
+    void ToggleDrawer() => IsDrawerOpen = !IsDrawerOpen;
+}
