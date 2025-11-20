@@ -2,15 +2,15 @@
 {
     public class UserProfileDto
     {
-        public Guid Id { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string ProfilePictureUrl { get; set; } = string.Empty;
-        public string Bio { get; set; } = string.Empty;
+        public Guid id { get; set; }
+        public string username { get; set; } = string.Empty;
+        public string profilePictureUrl { get; set; } = string.Empty;
+        public string bio { get; set; } = string.Empty;
 
-        public int FollowersCount { get; set; }
-        public int FollowingCount { get; set; }
-        public int PhotosCount { get; set; }
+        public int followersCount { get; set; }
+        public int followingCount { get; set; }
+        public int photosCount { get; set; }
 
-        public List<PhotoPrewiewDto> Photos { get; set; } = new();
+        public List<PhotoPrewiewDto> photos { get; set; } = new();
     }
 }

@@ -49,8 +49,8 @@
 
 </style>
 
-@if (!isAuthenticated)
-{
+<AuthorizeView>
+    <NotAuthorized>
     <MudAppBar Elevation="0" Style="background-color: white;">
         <div class="logo-container" @onclick="ToggleDrawer">
             <img src="images/logo.png" alt="logo_icon" />
@@ -72,19 +72,19 @@
             </div>
         </div>
     </MudAppBar>
-}
-else
-{
+</NotAuthorized>
+<Authorized>
     <MudAppBar Elevation="0" Style="background-color: white;">
         <div class="logo-container" @onclick="ToggleDrawer">
             <img src="images/logo.png" alt="logo_icon" />
         </div>
     </MudAppBar>
+
     <MudDrawer @bind-Open="IsDrawerOpen"
-                Variant="DrawerVariant.Responsive"
-                Elevation="0"
-                Anchor="Anchor.Start"
-                ClipMode="DrawerClipMode.Always">
+               Variant="DrawerVariant.Responsive"
+               Elevation="0"
+               Anchor="Anchor.Start"
+               ClipMode="DrawerClipMode.Always">
 
         <MudNavMenu Class="mt-10">
             <MudStack Row="false" Spacing="2">
@@ -107,6 +107,7 @@ else
                     <img src="images/icons/Settings.png" />
                     Створити пост
                 </MudNavLink>
+
                 <MudNavLink OnClick="HandleLogout" Class="menu-item">
                     <img src="images/icons/Logout.png" />
                     Вийти
@@ -114,27 +115,28 @@ else
             </MudStack>
         </MudNavMenu>
     </MudDrawer>
-}
+    </Authorized>
+</AuthorizeView>
 
 
 @code {
     [CascadingParameter]
     public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
-    public bool IsDrawerOpen { get; set; } = false;
+    public bool IsDrawerOpen { get; set; } = true;
     void ToggleDrawer() => IsDrawerOpen = !IsDrawerOpen;
-    public bool isAuthenticated { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateTask;
-        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
     }
+
 
     private async Task HandleLogout()
     {
         await AuthService.Logout();
         if (AuthStateProvider is CustomAuthenticationStateProvider customAuthStateProvider)
         {
+
             customAuthStateProvider.NotifyUserAuthenticationStateChanged();
         }
         NavigationManager.NavigateTo("/");
