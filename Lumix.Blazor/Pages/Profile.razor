@@ -1,6 +1,8 @@
 @page "/profile"
+@using Lumix.Blazor.Data
 @using Lumix.Blazor.Services.IServices
-@inject IAuthService AuthService
+@using Lumix.Blazor.Models
+@inject IUserService UserService
 @inject ILogger<Profile> Logger
 
 @using Lumix.Blazor.Components.Profile;
@@ -12,18 +14,7 @@
     </div>
 </div>
 
-@if (userId.HasValue)
-{
-    <p><strong>User ID:</strong> @userId.Value</p>
-}
-else if (isLoading)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <p>Error loading profile.</p>
-}
+<ProfileCard Profile="@ProfileDto" />
 
 <div class="profile-statistic-container">
     <div class="follows-statistic-container">
@@ -38,31 +29,13 @@ else
 </div>
 
 @code {
-    private Guid? userId;
-    private bool isLoading = true;
+    public UserProfileDto? ProfileDto { get; set; }
     private bool isInitialized = false;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender && !isInitialized)
-        {
-            isInitialized = true;
-            Logger.LogInformation("Initializing Profile page");
-
-            var result = await AuthService.GetCurrentUserAsync();
-
-            if (result.IsSuccess && result.Value.HasValue)
-            {
-                userId = result.Value;
-                Logger.LogInformation($"Fetched User ID: {userId}");
-            }
-            else
-            {
-                Logger.LogWarning($"Failed to fetch user profile: {result.ErrorMessage}");
-            }
-
-            isLoading = false;
-            StateHasChanged();
-        }
+        var result = await UserService.GetProfileAsync();
+        ProfileDto = result.Value;
+        isInitialized = true;
     }
 }

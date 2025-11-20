@@ -51,6 +51,7 @@ builder.Services.AddHttpClient<HttpService>(client =>
 
 builder.Services.AddScoped<HttpService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 //Authentication State Provider
