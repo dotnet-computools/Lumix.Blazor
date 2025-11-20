@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Text.Json;
 using Blazored.LocalStorage;
+using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.JSInterop;
 using MudBlazor.Services;
@@ -49,6 +50,7 @@ builder.Services.AddHttpClient<HttpService>(client =>
 
 builder.Services.AddScoped<HttpService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 // Logging
