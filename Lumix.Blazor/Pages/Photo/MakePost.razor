@@ -136,7 +136,7 @@
                 </div>
 
                 <MudText Typo="Typo.h6" Style="font-weight: 400">Додайте опис фото:</MudText>
-                <MudTextField @bind-Value="_model.title"
+                <MudTextField @bind-Value="_model.Title"
                               Variant="Variant.Outlined"
                               Margin="Margin.None"
                               Placeholder="Опис"
@@ -180,7 +180,7 @@
 
     private async Task OnFileSelected(IBrowserFile file)
     {
-        _model.photoFile = file;
+        _model.PhotoFile = file;
         using var stream = file.OpenReadStream(20 * 1024 * 1024);
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
@@ -222,7 +222,7 @@
 
     private async Task HandleUpload()
     {
-        _model.tags = new List<string>(_previewTags);
+        _model.Tags = new List<string>(_previewTags);
     }
 
 }

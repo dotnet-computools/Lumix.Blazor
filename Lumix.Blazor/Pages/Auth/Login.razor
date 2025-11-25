@@ -39,7 +39,7 @@
             </div>
 
             <MudForm Model="LoginDto" @ref="Form">
-                <MudTextField @bind-Value="LoginDto.email"
+                <MudTextField @bind-Value="LoginDto.Email"
                               Label="E-mail"
                               Variant="Variant.Outlined"
                               Style="width: 300px;"
@@ -47,7 +47,7 @@
                               Required="true"
                               RequiredError="Email is required"/>
 
-                <MudTextField @bind-Value="LoginDto.password"
+                <MudTextField @bind-Value="LoginDto.Password"
                               Label="Пароль"
                               Variant="Variant.Outlined"
                               InputType="InputType.Password"

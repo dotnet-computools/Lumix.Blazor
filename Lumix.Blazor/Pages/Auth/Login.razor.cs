@@ -79,7 +79,7 @@ namespace Lumix.Blazor.Pages.Auth
                     {
                         custom.NotifyUserAuthenticationStateChanged();
                     }
-                    Logger.LogInformation("User successfully logged in: {Email}", LoginDto.email);
+                    Logger.LogInformation("User successfully logged in: {Email}", LoginDto.Email);
 
                     await Task.Delay(1000);
                     NavigationManager.NavigateTo("/");
@@ -88,13 +88,13 @@ namespace Lumix.Blazor.Pages.Auth
                 {
                     ErrorMessage = result.ErrorMessage;
                     Logger.LogWarning("Login failed for user {Email}: {ErrorMessage}",
-                        LoginDto.email, result.ErrorMessage);
+                        LoginDto.Email, result.ErrorMessage);
                 }
             }
             catch (Exception ex)
             {
                 ErrorMessage = "Error. Try again.";
-                Logger.LogError(ex, "Unhandled exception during login for user {Email}", LoginDto.email);
+                Logger.LogError(ex, "Unhandled exception during login for user {Email}", LoginDto.Email);
             }
             finally
             {

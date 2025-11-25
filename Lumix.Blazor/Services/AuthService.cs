@@ -37,7 +37,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            _logger.LogInformation($"Attempting login for user: {loginDto.email}");
+            _logger.LogInformation($"Attempting login for user: {loginDto.Email}");
 
             var result = await _httpService.PostAsync<LoginResponseDto>($"{_baseUrl}/login", loginDto);
 
@@ -45,8 +45,8 @@ public class AuthService : IAuthService
             {
                 try
                 {
-                    await _jsRuntime.InvokeVoidAsync("setCookie", accessToken, result.Value.accessToken, 1);
-                    await _jsRuntime.InvokeVoidAsync("setCookie", refreshToken, result.Value.refreshToken, 1);
+                    await _jsRuntime.InvokeVoidAsync("setCookie", accessToken, result.Value.AccessToken, 1);
+                    await _jsRuntime.InvokeVoidAsync("setCookie", refreshToken, result.Value.RefreshToken, 1);
 
                     _logger.LogInformation("Login successful, tokens stored in cookies");
                 }
@@ -105,7 +105,7 @@ public class AuthService : IAuthService
             if (result.IsSuccess && result.Value != null)
             {
                 _logger.LogInformation("Current user retrieved");
-                return ApiResult<Guid?>.Success(result.Value.userId);
+                return ApiResult<Guid?>.Success(result.Value.UserId);
             }
 
             _logger.LogWarning($"Failed to get current user: {result.ErrorMessage}");
@@ -142,22 +142,22 @@ public class AuthService : IAuthService
     {
         try
         {
-            _logger.LogInformation($"Starting registration for {registerDto.email}");
+            _logger.LogInformation($"Starting registration for {registerDto.Email}");
 
             var result = await _httpService.PostAsync<RegisterDto>($"{_baseUrl}/register", registerDto);
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation($"Registration successful for {registerDto.email}");
+                _logger.LogInformation($"Registration successful for {registerDto.Email}");
                 return ApiResult<RegisterDto>.Success(registerDto);
             }
 
-            _logger.LogWarning($"Registration failed for {registerDto.email}: {result.ErrorMessage}");
+            _logger.LogWarning($"Registration failed for {registerDto.Email}: {result.ErrorMessage}");
             return ApiResult<RegisterDto>.Failure(result.ErrorMessage);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Exception during registration for {registerDto.email}");
+            _logger.LogError(ex, $"Exception during registration for {registerDto.Email}");
             return ApiResult<RegisterDto>.Failure(ex.Message);
         }
     }

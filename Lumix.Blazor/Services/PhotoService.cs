@@ -20,22 +20,22 @@ public class PhotoService : IPhotoService
     {
         try
         {
-            if (uploadDto.photoFile == null)
+            if (uploadDto.PhotoFile == null)
             {
                 return ApiResult<PhotoUploadResponseDto>.Failure("Photo file is required.");
             }
 
             using var content = new MultipartFormDataContent();
             
-            content.Add(new StringContent(uploadDto.title), "Title");
+            content.Add(new StringContent(uploadDto.Title), "Title");
             
-            var fileContent = new StreamContent(uploadDto.photoFile.OpenReadStream(maxAllowedSize: 10485760));
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue(uploadDto.photoFile.ContentType);
-            content.Add(fileContent, "PhotoFile", uploadDto.photoFile.Name);
+            var fileContent = new StreamContent(uploadDto.PhotoFile.OpenReadStream(maxAllowedSize: 10485760));
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(uploadDto.PhotoFile.ContentType);
+            content.Add(fileContent, "PhotoFile", uploadDto.PhotoFile.Name);
             
-            if (uploadDto.tags != null)
+            if (uploadDto.Tags != null)
             {
-                foreach (var tag in uploadDto.tags)
+                foreach (var tag in uploadDto.Tags)
                 {
                     content.Add(new StringContent(tag), "Tags[]");
                 }

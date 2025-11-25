@@ -9,7 +9,7 @@ public class HttpService
     private static readonly HttpClient _httpClient = new HttpClient();
     private readonly ILogger<HttpService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    //private readonly JsonSerializerOptions _jsonOptions;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     public HttpService(
         ILogger<HttpService> logger,
@@ -18,11 +18,11 @@ public class HttpService
     {
         _logger = logger;
         _httpContextAccessor = httpContextAccessor;
-        //_jsonOptions = new JsonSerializerOptions
-        //{
-        //    PropertyNameCaseInsensitive = true,
-        //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        //};
+        _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
     }
 
     public async Task<ApiResult<T?>> GetAsync<T>(string uri)
@@ -53,7 +53,7 @@ public class HttpService
                     return ApiResult<T>.Success(default);
                 }
 
-                var result = JsonSerializer.Deserialize<T>(content); //._jsonOptions
+                var result = JsonSerializer.Deserialize<T>(content, _jsonOptions);
                 return ApiResult<T>.Success(result);
             }
 
@@ -69,7 +69,7 @@ public class HttpService
     public async Task<ApiResult<T>> PostAsync<T>(string endpoint, object data)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
-        request.Content = JsonContent.Create(data); // options: _jsonOptions
+        request.Content = JsonContent.Create(data, options: _jsonOptions);
         return await SendRequestAsync<T>(request);
     }
 }
