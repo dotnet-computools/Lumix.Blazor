@@ -37,7 +37,7 @@ public class PhotoService : IPhotoService
             {
                 foreach (var tag in uploadDto.tags)
                 {
-                    content.Add(new StringContent(tag), "Tags[]");  
+                    content.Add(new StringContent(tag), "Tags[]");
                 }
             }
 

@@ -1,0 +1,228 @@
+﻿@page "/posts/create"
+@using Lumix.Blazor.Components.Photo
+@using Lumix.Blazor.Data
+@using MudBlazor
+
+<style>
+
+    .create-post-page-wrapper {
+        height: calc(100vh - 80px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .create-post-layout {
+        padding: 32px 64px;
+        width: 100%;
+        max-width: 1300px;
+    }
+    
+    .create-post-left,
+    .create-post-right {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .create-post-form {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 430px;
+    }
+
+    .form-field {
+        width: 100%;
+        max-width: 430px;
+    }
+    .custom-textfield .mud-input-root{
+        border: 2px solid #000000 !important;
+        border-radius: 6px;
+        padding: 6px 8px;
+    }
+
+    .custom-textfield .mud-input-root.mud-focused {
+        border-color: #000000 !important;
+        box-shadow: 0 0 0 1px #5A35FF40 !important;
+    }
+
+    .form-button {
+        background-color: orangered;
+        color: white;
+        min-width: 200px;
+        width: auto;
+        margin-top: 32px;
+        align-self: center;
+        transition: all 0.2s ease
+    }
+    .form-button:hover{
+        border-color: black;
+        color: black;
+        background-color: orangered;
+    }
+
+    .publish-switch .mud-switch {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .switch-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .switch-row .switch-label {
+        margin: 0;
+    }
+
+    .switch-row .switch-control {
+        margin: 0;
+        padding: 0;
+    }
+
+    .tags-preview-paper {
+        width: 100%;
+        max-width: 430px;
+        background-color: #f5f6f8;
+        padding: 8px 12px;
+        box-sizing: border-box;
+    }
+
+        .tags-preview-paper .mud-typography {
+            line-height: 1.4;
+        }
+
+</style>
+
+<div class="create-post-page-wrapper">
+
+    <MudStack Row="true"
+              Class="create-post-layout"
+              Spacing="3"
+              Justify="Justify.FlexStart"
+              AlignItems="AlignItems.Center">
+
+        
+        <MudPaper Elevation="0" Class="create-post-left">
+            <UploadPhotoArea OnSelected="OnFileSelected" />
+
+            @if (!string.IsNullOrEmpty(_previewUrl))
+            {
+                <MudImage Src="@_previewUrl"
+                          Alt="Попередній перегляд"
+                          Class="mt-4"
+                          Style="width:100%; max-height:400px; object-fit:cover;" />
+            }
+        </MudPaper>
+
+        <MudPaper Elevation="0" Class="create-post-right">
+            <div class="create-post-form">
+                <MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 400">Де опублікувати?</MudText>
+
+                <div class="switch-row">
+                    <MudText Typo="Typo.body1" Class="switch-label">профіль</MudText>
+
+                    <MudSwitch T="bool"
+                               Color="Color.Dark"
+                               UnCheckedColor="Color.Default"
+                               Class="switch-control" />
+
+                    <MudText Typo="Typo.body1" Class="switch-label">аватар</MudText>
+                </div>
+
+                <MudText Typo="Typo.h6" Style="font-weight: 400">Додайте опис фото:</MudText>
+                <MudTextField @bind-Value="_model.title"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.None"
+                              Placeholder="Опис"
+                              Class="mb-3 form-field custom-textfield" />
+
+                <MudText Typo="Typo.h6" Style="font-weight: 400">Додайте тег для фото:</MudText>
+                <MudTextField @bind-Value="TagsInput"
+                              @onkeydown="@(e => HandleTagKeyDown(e))"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.None"
+                              Placeholder="Тег"
+                              Class="mb-4 form-field custom-textfield" 
+                              Immediate="true"/>
+                @if (_previewTags.Any())
+                {
+                    <MudPaper Class="tags-preview-paper" Elevation="0">
+                        @foreach (var tag in _previewTags)
+                        {
+                            <MudText Typo="Typo.body2">#@tag</MudText>
+                        }
+                    </MudPaper>
+                }
+
+                <MudButton Variant="Variant.Filled"
+                           Class="form-button"
+                           OnClick="HandleUpload">
+                    Опублікувати
+                </MudButton>
+            </div>
+        </MudPaper>
+
+    </MudStack>
+
+</div>
+
+@code {
+    public string? TagsInput { get; set; }
+    private List<string> _previewTags = new();
+    private string? _previewUrl;
+    private PhotoUploadDto _model = new();
+
+    private async Task OnFileSelected(IBrowserFile file)
+    {
+        _model.photoFile = file;
+        using var stream = file.OpenReadStream(20 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var bytes = ms.ToArray();
+        _previewUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
+    }
+
+    private async Task HandleTagKeyDown(KeyboardEventArgs e)
+    {
+        Console.WriteLine($"Key pressed: {e.Key}");
+        if (e.Key != "Enter")
+            return;
+
+        var raw = TagsInput.Trim();
+        if (string.IsNullOrWhiteSpace(raw))
+            return;
+
+        var parts = raw
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if(parts.Length == 1)
+        {
+            var tag = parts[0];
+            if (!_previewTags.Contains(tag, StringComparer.OrdinalIgnoreCase))
+            {
+                _previewTags.Add(tag);
+            }
+        }
+        else
+        {
+            foreach (var tag in parts)
+            {
+                if (!_previewTags.Contains(tag, StringComparer.OrdinalIgnoreCase))
+                    _previewTags.Add(tag);
+            }
+        }
+        TagsInput = string.Empty;
+    }
+
+
+    private async Task HandleUpload()
+    {
+        _model.tags = new List<string>(_previewTags);
+    }
+
+}
