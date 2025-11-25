@@ -34,6 +34,21 @@ a, .btn-link {
     color: red;
 }
 
+@media (max-width: 960px) {
+    .create-post-page-wrapper {
+        min-height: auto;
+        align-items: flex-start;
+        padding: 16px;
+    }
+
+    .create-post-layout {
+        padding: 16px;
+        flex-direction: column;
+        gap: 24px;
+    }
+}
+
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
