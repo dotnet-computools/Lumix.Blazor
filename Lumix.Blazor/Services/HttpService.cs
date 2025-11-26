@@ -72,4 +72,11 @@ public class HttpService
         request.Content = JsonContent.Create(data, options: _jsonOptions);
         return await SendRequestAsync<T>(request);
     }
+
+    public async Task<ApiResult<T>> PostFormAsync<T>(string endpoint, MultipartFormDataContent formData)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
+        request.Content = formData;
+        return await SendRequestAsync<T>(request);
+    }
 }
