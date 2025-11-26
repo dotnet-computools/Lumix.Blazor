@@ -37,14 +37,17 @@ public class PhotoService : IPhotoService
             {
                 foreach (var tag in uploadDto.Tags)
                 {
-                    content.Add(new StringContent(tag), "Tags[]");
+                    content.Add(new StringContent(tag), "Tags");
                 }
             }
 
-            var response = await _httpService.PostAsync<PhotoUploadResponseDto>($"{_baseUrl}/upload", content);
+            var response = await _httpService.PostFormAsync<PhotoUploadResponseDto>($"{_baseUrl}/upload", content);
             
-            
-            return ApiResult<PhotoUploadResponseDto>.Failure(response.ErrorMessage);
+            if(!response.IsSuccess)
+            {
+                return ApiResult<PhotoUploadResponseDto>.Failure(response.ErrorMessage ?? "Upload failed");
+            }
+            return ApiResult<PhotoUploadResponseDto>.Success(response.Value);
         }
         catch (Exception ex)
         {

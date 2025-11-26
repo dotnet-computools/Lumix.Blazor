@@ -1,7 +1,11 @@
 ﻿@page "/posts/create"
 @using Lumix.Blazor.Components.Photo
 @using Lumix.Blazor.Data
+@using Lumix.Blazor.Services.IServices
 @using MudBlazor
+@inject IPhotoService PhotoService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 <style>
 
@@ -180,12 +184,15 @@
 
     private async Task OnFileSelected(IBrowserFile file)
     {
+        Console.WriteLine("FILE SELECTED: " + (file?.Name ?? "NULL"));
         _model.PhotoFile = file;
         using var stream = file.OpenReadStream(20 * 1024 * 1024);
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
+
         var bytes = ms.ToArray();
-        _previewUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
+        // _previewUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
+
     }
 
     private async Task HandleTagKeyDown(KeyboardEventArgs e)
@@ -222,7 +229,34 @@
 
     private async Task HandleUpload()
     {
+        if (!string.IsNullOrWhiteSpace(TagsInput))
+        {
+            var raw = TagsInput.Trim();
+            var parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            foreach (var tag in parts)
+            {
+                if (!_previewTags.Contains(tag, StringComparer.OrdinalIgnoreCase))
+                    _previewTags.Add(tag);
+            }
+        }
+
         _model.Tags = new List<string>(_previewTags);
+        if(_model.PhotoFile == null)
+        {
+            Snackbar.Add("Будь ласка, оберіть фото для завантаження.", Severity.Error);
+            return;
+        }
+        var result = await PhotoService.UploadPhotoAsync(_model);
+        if(result.IsSuccess)
+        {
+            Snackbar.Add("Фото успішно опубліковано!", Severity.Success);
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Snackbar.Add($"Помилка при публікації фото: {result.ErrorMessage}", Severity.Error);
+        }
     }
 
 }
