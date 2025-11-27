@@ -7,26 +7,9 @@
 
 @using Lumix.Blazor.Components.Profile;
 
-@* <div class="profile-container">
-    <div class="profile-picture-container">
-        <img src="images/icons/profile/avatar_frame.png" alt="picture_frame" />
-        <img src="images//icons/profile/empty_avatar.png" alt="empty_picture" />
-    </div>
-</div> *@
 
 <ProfileCard Profile="@ProfileDto" />
 
-@* <div class="profile-statistic-container">
-    <div class="follows-statistic-container">
-        <p>100 підписників</p>
-        <img src="images/icons/profile/separator.png" />
-        <p>200 підписок</p>
-    </div>
-    <div class="follows-statistic-container">
-        <p>всьогo 50 дописів</p>
-    </div>
-    <EmptyPhotoTableComponent />
-</div> *@
 
 @code {
     public UserProfileDto ProfileDto { get; set; } = new();
