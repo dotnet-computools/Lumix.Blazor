@@ -2,6 +2,25 @@
 @inherits LayoutComponentBase
 
 <style>
+    .profile-card {
+        max-width: 900px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-grid {
+        width: 100%;
+        margin-top: 24px;
+    }
+
     .profile-photo-container {
         position: relative;
         width: 100%;
@@ -18,53 +37,75 @@
         object-fit: cover;
     }
 
+    .photo-item {
+        position: relative;
+        width: 100%;
+        padding-top: 100%;
+        overflow: hidden;
+    }
+
+    .photo-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+
+
+    .avatar-wrapper {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
 </style>
 
 <MudContainer>
-<MudPaper Class="d-flex flex-column align-items-center pa-6 profile-container">
-    <MudAvatar Size="Size.Large"
-               Class="mb-3"
-               Src="@Profile.ProfilePictureUrl" />
-    <MudText Typo="Typo.h6" Class="font-weight-bold text-center">
-        @Profile.Username
-    </MudText>
 
-    <MudText Typo="Typo.body2" Class="mt-2 text-center">
-        @Profile.FollowersCount підписників • @Profile.FollowingCount підписок
-    </MudText>
+    <MudPaper Class="profile-card pa-6">
+        <div class="profile-header">
+            <div class="avatar-wrapper mb-2">
+                <img src="@Profile.ProfilePictureUrl"
+                     alt="@Profile.Username"
+                     class="avatar-img" />
+            </div>
 
-    <MudText Typo="Typo.body2" Class="text-center mb-4">
-        Всього @Profile.PhotosCount фото
-    </MudText>
+            <MudText Typo="Typo.h6" Class="font-weight-bold text-center">
+                @Profile.Username
+            </MudText>
 
-    <MudGrid GutterSize="2" Justify="Justify.Center" >
-        @* @foreach(var photo in Profile.photos)
-        {
-            <MudItem lg="4" md="4" sm="12">
-                <img src="@photo.Url" alt="photo" class="profile-photo-img" />
-            </MudItem>
-        } *@
-        @for(int i = 0; i < 4; i++)
-        {
-            <MudItem lg="4" md="4" sm="12">
-                    <div class="profile-photo-container">
-                        <img src="/images/auth/handsome-young-man-with-nose-pierced-holding-sunflower-hand-against-grey-backdrop.png" alt="photo" class="profile-photo-img" />
+            <MudText Typo="Typo.body2" Class="mt-1 text-center">
+                @Profile.FollowersCount підписників • @Profile.FollowingCount підписок
+            </MudText>
+
+            <MudText Typo="Typo.body2" Class="text-center mb-4">
+                Всього @Profile.PhotosCount фото
+            </MudText>
+        </div>
+
+        <MudGrid GutterSize="0" Class="photo-grid">
+            @foreach (var photo in Profile.Photos)
+            {
+                <MudItem xs="4">
+                    <div class="photo-item">
+                        <img src="@photo.Url" class="photo-img" />
                     </div>
-            </MudItem>
-            <MudItem lg="4" md="4" sm="12">
-                    <div class="profile-photo-container">
-                        <img src="/images/auth/man-variant2.png" alt="photo" class="profile-photo-img" />
-                    </div>
-            </MudItem>
-            <MudItem lg="4" md="4" sm="12">
-                    <div class="profile-photo-container">
-                        <img src="/images/auth/inspiring-view-morning-light.png" alt="photo" class="profile-photo-img" />
-                    </div>
-            </MudItem>
-            
-        }
+                </MudItem>
+            }
         </MudGrid>
-</MudPaper>
+
+    </MudPaper>
+
 </MudContainer>
 
 @code {
