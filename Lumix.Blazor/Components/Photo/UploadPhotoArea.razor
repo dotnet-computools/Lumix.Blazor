@@ -61,7 +61,11 @@
         <div class="upload-content">
             <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large" />
             <div class="upload-content-title">
-                Оберіть файл з комп'ютера<br />або перетягніть його сюди
+                @if(@HasPhoto){
+                    <text>Фото обрано <br /> щоб обрати інший файл натисніть або перетягніть його сюди</text>
+                }else{
+                    <text>Оберіть файл з комп'ютера<br />або перетягніть його сюди</text>
+                }
             </div>
         </div>
 
@@ -75,6 +79,8 @@
 
 @code {
     [Parameter] public EventCallback<IBrowserFile> OnSelected { get; set; }
+
+    [Parameter] public bool HasPhoto { get; set; }
 
     private Task OnFileChanged(IBrowserFile file)
         => OnSelected.InvokeAsync(file);

@@ -113,7 +113,7 @@
 
         
         <MudPaper Elevation="0" Class="create-post-left">
-            <UploadPhotoArea OnSelected="OnFileSelected" />
+            <UploadPhotoArea OnSelected="OnFileSelected" HasPhoto="@isPhotoSelected"/>
 
             @if (!string.IsNullOrEmpty(_previewUrl))
             {
@@ -182,11 +182,13 @@
     private List<string> _previewTags = new();
     private string? _previewUrl;
     private PhotoUploadDto _model = new();
+    private bool isPhotoSelected = false;
 
     private async Task OnFileSelected(IBrowserFile file)
     {
         Console.WriteLine("FILE SELECTED: " + (file?.Name ?? "NULL"));
         _model.PhotoFile = file;
+        isPhotoSelected = true;
         using var stream = file.OpenReadStream(20 * 1024 * 1024);
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
@@ -252,7 +254,7 @@
         if(result.IsSuccess)
         {
             Snackbar.Add("Фото успішно опубліковано!", Severity.Success);
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/profile");
         }
         else
         {
