@@ -97,7 +97,7 @@
             @foreach (var photo in Profile.Photos)
             {
                 <MudItem xs="4">
-                    <div class="photo-item">
+                    <div class="photo-item" @onclick="@(() => OnOpenPhoto.InvokeAsync(photo.Id))">
                         <img src="@photo.Url" class="photo-img" />
                     </div>
                 </MudItem>
@@ -110,4 +110,5 @@
 
 @code {
     [Parameter] public UserProfileDto Profile { get; set; } = default!;
+    [Parameter] public EventCallback<Guid> OnOpenPhoto { get; set; }
 }

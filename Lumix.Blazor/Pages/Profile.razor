@@ -1,14 +1,16 @@
 @page "/profile"
+@using Lumix.Blazor.Components.Photo
 @using Lumix.Blazor.Data
 @using Lumix.Blazor.Services.IServices
 @using Lumix.Blazor.Models
 @inject IUserService UserService
 @inject ILogger<Profile> Logger
+@inject IDialogService DialogService
 
 @using Lumix.Blazor.Components.Profile;
 
 
-<ProfileCard Profile="@ProfileDto" />
+<ProfileCard Profile="@ProfileDto" OnOpenPhoto="@OpenPhotoDialog"/>
 
 
 @code {
@@ -20,5 +22,20 @@
         var result = await UserService.GetProfileAsync();
         ProfileDto = result.Value;
         isInitialized = true;
+    }
+
+    private async Task OpenPhotoDialog(Guid photoId)
+    {
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.ExtraLarge,
+            FullWidth = true,
+            CloseOnEscapeKey = true,
+            CloseButton = true
+        };
+
+        var parameters = new DialogParameters { { "PhotoId", photoId }, {"CurrentUser", ProfileDto } };
+
+        await DialogService.ShowAsync<PhotoDetailsDialog>("", parameters, options);
     }
 }

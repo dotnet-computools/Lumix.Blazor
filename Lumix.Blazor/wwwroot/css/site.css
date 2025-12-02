@@ -74,6 +74,16 @@ a, .btn-link {
     color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
+.blazor-error-boundary::after {
+    content: "An error has occurred."
+}
+
+.mud-overlay.mud-overlay-dialog {
+    background-color: rgba(0, 0, 0, 0.55) !important;
+    backdrop-filter: blur(4px);
+}
+
+.mud-dialog.mud-paper {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}

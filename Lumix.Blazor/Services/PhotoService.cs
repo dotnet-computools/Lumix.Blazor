@@ -56,4 +56,23 @@ public class PhotoService : IPhotoService
             return ApiResult<PhotoUploadResponseDto>.Failure($"Upload failed: {ex.Message}");
         }
     }
+
+    public async Task<ApiResult<PhotoDto>> GetPhotoByIdAsync(Guid photoId)
+    {
+        try
+        {
+            var url = $"{_baseUrl}/{photoId}";
+            var response = await _httpService.GetAsync<PhotoDto>(url);
+            
+            if(!response.IsSuccess || response.Value is null)
+                return ApiResult<PhotoDto>.Failure(response.ErrorMessage ?? "Photo not found");
+
+            return ApiResult<PhotoDto>.Success(response.Value);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading photo {PhotoId}", photoId);
+            return ApiResult<PhotoDto>.Failure($"Failed to load photo: {ex.Message}");
+        }
+    }
 }

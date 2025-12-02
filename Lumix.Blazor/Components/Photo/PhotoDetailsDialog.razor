@@ -1,0 +1,157 @@
+﻿@using Lumix.Blazor.Data
+@using Lumix.Blazor.Services.IServices
+@inject IPhotoService PhotoService
+@inject ISnackbar Snackbar
+
+
+<div class="photo-dialog-root">
+    @if (isLoading)
+    {
+        <div class="photo-dialog-loading">
+            <MudProgressCircular Indeterminate="true" />
+        </div>
+    }
+    else if (Photo is null)
+    {
+        <div class="photo-dialog-error">
+            <MudText Color="Color.Error">Фото не знайдено</MudText>
+        </div>
+    }
+    else
+    {
+        <div class="photo-dialog-inner">
+
+            <div class="photo-dialog-left">
+                <img src="@Photo.Url"
+                     alt="@Photo.Title"
+                     class="photo-dialog-image" />
+            </div>
+
+            <div class="photo-dialog-right">
+
+                <div class="photo-dialog-author-row">
+                    <img src="@Photo.Author.ProfilePictureUrl"
+                         alt="@Photo.Author.Username"
+                         class="photo-dialog-author-avatar" />
+
+                    <div>
+                        <div class="photo-dialog-author-name">
+                            @Photo.Author.Username
+                        </div>
+                        <div class="photo-dialog-date">
+                            @Photo.CreatedAt.ToString("dd.MM.yyyy")
+                        </div>
+                    </div>
+                </div>
+
+                <MudText Typo="Typo.subtitle1" Class="photo-dialog-title">
+                    @Photo.Title
+                </MudText>
+
+                @if (Photo.PhotoTags?.Any() == true)
+                {
+                    <div class="photo-dialog-tags">
+                        @foreach (var tag in Photo.PhotoTags)
+                        {
+                            <span class="photo-dialog-tag">#@tag.Tag.Name</span>
+                        }
+                    </div>
+                }
+
+                <div class="photo-dialog-stats-row">
+                    <div class="photo-dialog-stat-item">
+                        <span>❤</span>
+                        <span>@Photo.LikeCount</span>
+                    </div>
+                    <div class="photo-dialog-stat-item">
+                        <span>💬</span>
+                        <span>@Photo.Comments.Count</span>
+                    </div>
+                </div>
+
+                <div class="photo-dialog-comments">
+                    @if (Photo.Comments.Any())
+                    {
+                        @foreach (var c in Photo.Comments)
+                        {
+                            <div class="photo-dialog-comment-item">
+                                <div class="photo-dialog-comment-time">
+                                    @c.CreatedAt.ToString("HH:mm")
+                                </div>
+                                <div class="photo-dialog-comment-text">
+                                    @c.Text
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption" Class="mt-2">
+                            Поки що немає коментарів. Будь першим
+                        </MudText>
+                    }
+                </div>
+
+                <div class="photo-dialog-comment-input">
+                    <img src="@CurrentUser.ProfilePictureUrl"
+                         class="photo-dialog-comment-avatar" />
+
+                    <MudTextField @bind-Value="_newComment"
+                                  Placeholder="Коментар"
+                                  Variant="Variant.Outlined"
+                                  Class="photo-dialog-comment-textfield"
+                                  Lines="1" />
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Send"
+                                   Disabled="@string.IsNullOrWhiteSpace(_newComment)"
+                                   OnClick="SubmitComment" />
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid PhotoId { get; set; }
+    [Parameter] public UserProfileDto CurrentUser { get; set; }
+
+    public PhotoDto Photo { get; set; }
+    private bool isLoading = true;
+    private string _newComment = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await PhotoService.GetPhotoByIdAsync(PhotoId);
+
+        if (!result.IsSuccess || result.Value is null)
+        {
+            Snackbar.Add("Не вдалося завантажити фото.", Severity.Error);
+            return;
+        }
+
+        Photo = result.Value;
+        isLoading = false;
+    }
+
+    void Cancel() => MudDialog.Cancel();
+
+    async Task SubmitComment()
+    {
+        if (string.IsNullOrWhiteSpace(_newComment) || Photo is null)
+            return;
+
+        
+        Photo.Comments.Add(new CommentDto
+        {
+            Id = Guid.NewGuid(),
+            Text = _newComment,
+            CreatedAt = DateTime.UtcNow
+        });
+
+        _newComment = string.Empty;
+    }
+}
+
+
