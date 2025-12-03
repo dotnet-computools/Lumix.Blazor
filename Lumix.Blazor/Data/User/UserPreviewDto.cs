@@ -1,4 +1,4 @@
-﻿namespace Lumix.Blazor.Data
+﻿namespace Lumix.Blazor.Data.User
 {
     public class UserPreviewDto
     {

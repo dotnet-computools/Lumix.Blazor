@@ -1,4 +1,4 @@
-﻿using Lumix.Blazor.Data;
+﻿using Lumix.Blazor.Data.User;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
 

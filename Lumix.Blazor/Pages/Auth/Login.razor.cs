@@ -1,5 +1,5 @@
 using Blazored.LocalStorage;
-using Lumix.Blazor.Data;
+using Lumix.Blazor.Data.Auth;
 using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components;

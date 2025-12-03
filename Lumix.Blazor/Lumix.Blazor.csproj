@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Requests\" />
     <Folder Include="Middleware\" />
   </ItemGroup>
 

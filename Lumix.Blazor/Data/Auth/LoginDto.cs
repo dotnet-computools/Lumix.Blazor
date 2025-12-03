@@ -1,4 +1,4 @@
-namespace Lumix.Blazor.Data;
+namespace Lumix.Blazor.Data.Auth;
 
 public class LoginDto
 {

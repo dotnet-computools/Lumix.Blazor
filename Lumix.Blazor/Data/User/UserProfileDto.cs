@@ -1,4 +1,6 @@
-﻿namespace Lumix.Blazor.Data
+﻿using Lumix.Blazor.Data.Photo;
+
+namespace Lumix.Blazor.Data.User
 {
     public class UserProfileDto
     {
