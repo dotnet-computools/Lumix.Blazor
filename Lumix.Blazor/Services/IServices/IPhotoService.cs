@@ -1,4 +1,4 @@
-using Lumix.Blazor.Data;
+using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
 using Microsoft.AspNetCore.Components.Forms;

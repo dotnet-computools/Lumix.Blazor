@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace Lumix.Blazor.Data;
+namespace Lumix.Blazor.Data.Photo;
 
 public class PhotoUploadDto
 {

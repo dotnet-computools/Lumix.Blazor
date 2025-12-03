@@ -1,5 +1,5 @@
 using System.Net.Http.Headers;
-using Lumix.Blazor.Data;
+using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;

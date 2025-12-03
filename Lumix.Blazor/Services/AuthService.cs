@@ -4,11 +4,11 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Lumix.Blazor.Data;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.JSInterop;
+using Lumix.Blazor.Data.Auth;
 
 public class AuthService : IAuthService
 {
