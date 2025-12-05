@@ -1,116 +1,53 @@
 ﻿@using Lumix.Blazor.Data
+@using Lumix.Blazor.Data.Photo
+@using Lumix.Blazor.Data.User
 @using Lumix.Blazor.Services.IServices
 @inject IPhotoService PhotoService
 @inject ISnackbar Snackbar
 
 
-<div class="photo-dialog-root">
-    @if (isLoading)
-    {
-        <div class="photo-dialog-loading">
-            <MudProgressCircular Indeterminate="true" />
-        </div>
+<MudDialog>
+    <DialogContent>
+        @if (isLoading)
+        {
+            <MudStack Justify="Justify.Center"
+                      AlignItems="AlignItems.Center"
+                      Class="pa-6"
+                      Style="min-height:400px">
+                <MudProgressCircular Indeterminate="true" />
+            </MudStack>
+        }
+        else if (Photo is null)
+        {
+            <MudStack Justify="Justify.Center"
+                      AlignItems="AlignItems.Center"
+                      Class="pa-6"
+                      Style="min-height:300px">
+                <MudText Color="Color.Error">Фото не знайдено</MudText>
+            </MudStack>
+        }
+        else
+        {
+            <MudGrid Spacing="0" Class="photo-dialog-grid">
+                <MudItem xs="12" md="7">
+                    <PhotoDialogImage Photo="Photo" />
+                </MudItem>
+
+                <MudItem xs="12" md="5" Class="d-flex flex-column">
+                    <PhotoDialogComments Photo="Photo" CurrentUser="CurrentUser" OnAddComment="HandleCommentAdded" />
+                </MudItem>
+            </MudGrid>
+        }
+    </DialogContent>
+
+</MudDialog>
+
+
+<style>
+    .photo-dialog-grid {
+        min-height: 500px;
     }
-    else if (Photo is null)
-    {
-        <div class="photo-dialog-error">
-            <MudText Color="Color.Error">Фото не знайдено</MudText>
-        </div>
-    }
-    else
-    {
-        <div class="photo-dialog-inner">
-
-            <div class="photo-dialog-left">
-                <img src="@Photo.Url"
-                     alt="@Photo.Title"
-                     class="photo-dialog-image" />
-            </div>
-
-            <div class="photo-dialog-right">
-
-                <div class="photo-dialog-author-row">
-                    <img src="@Photo.Author.ProfilePictureUrl"
-                         alt="@Photo.Author.Username"
-                         class="photo-dialog-author-avatar" />
-
-                    <div>
-                        <div class="photo-dialog-author-name">
-                            @Photo.Author.Username
-                        </div>
-                        <div class="photo-dialog-date">
-                            @Photo.CreatedAt.ToString("dd.MM.yyyy")
-                        </div>
-                    </div>
-                </div>
-
-                <MudText Typo="Typo.subtitle1" Class="photo-dialog-title">
-                    @Photo.Title
-                </MudText>
-
-                @if (Photo.PhotoTags?.Any() == true)
-                {
-                    <div class="photo-dialog-tags">
-                        @foreach (var tag in Photo.PhotoTags)
-                        {
-                            <span class="photo-dialog-tag">#@tag.Tag.Name</span>
-                        }
-                    </div>
-                }
-
-                <div class="photo-dialog-stats-row">
-                    <div class="photo-dialog-stat-item">
-                        <span>❤</span>
-                        <span>@Photo.LikeCount</span>
-                    </div>
-                    <div class="photo-dialog-stat-item">
-                        <span>💬</span>
-                        <span>@Photo.Comments.Count</span>
-                    </div>
-                </div>
-
-                <div class="photo-dialog-comments">
-                    @if (Photo.Comments.Any())
-                    {
-                        @foreach (var c in Photo.Comments)
-                        {
-                            <div class="photo-dialog-comment-item">
-                                <div class="photo-dialog-comment-time">
-                                    @c.CreatedAt.ToString("HH:mm")
-                                </div>
-                                <div class="photo-dialog-comment-text">
-                                    @c.Text
-                                </div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <MudText Typo="Typo.caption" Class="mt-2">
-                            Поки що немає коментарів. Будь першим
-                        </MudText>
-                    }
-                </div>
-
-                <div class="photo-dialog-comment-input">
-                    <img src="@CurrentUser.ProfilePictureUrl"
-                         class="photo-dialog-comment-avatar" />
-
-                    <MudTextField @bind-Value="_newComment"
-                                  Placeholder="Коментар"
-                                  Variant="Variant.Outlined"
-                                  Class="photo-dialog-comment-textfield"
-                                  Lines="1" />
-
-                    <MudIconButton Icon="@Icons.Material.Filled.Send"
-                                   Disabled="@string.IsNullOrWhiteSpace(_newComment)"
-                                   OnClick="SubmitComment" />
-                </div>
-            </div>
-        </div>
-    }
-</div>
-
+</style>
 
 @code {
     

@@ -12,9 +12,10 @@ namespace Lumix.Blazor.Components.Photo
         [Parameter] public Guid PhotoId { get; set; }
         [Parameter] public UserProfileDto CurrentUser { get; set; }
 
+
+
         public PhotoDto Photo { get; set; }
         private bool isLoading = true;
-        private string _newComment = string.Empty;
 
         protected override async Task OnInitializedAsync()
         {
@@ -23,6 +24,7 @@ namespace Lumix.Blazor.Components.Photo
             if (!result.IsSuccess || result.Value is null)
             {
                 Snackbar.Add("Не вдалося завантажити фото.", Severity.Error);
+                isLoading = false;
                 return;
             }
 
@@ -32,20 +34,24 @@ namespace Lumix.Blazor.Components.Photo
 
         void Cancel() => MudDialog.Cancel();
 
-        async Task SubmitComment()
+        private Task HandleCommentAdded(string comment)
         {
-            if (string.IsNullOrWhiteSpace(_newComment) || Photo is null)
-                return;
-
-
+            if(Photo is null || string.IsNullOrWhiteSpace(comment))
+            {
+                return Task.CompletedTask;
+            }
             Photo.Comments.Add(new CommentDto
             {
                 Id = Guid.NewGuid(),
-                Text = _newComment,
+                PhotoId = Photo.Id,
+                UserId = CurrentUser.Id,
+                Text = comment,
                 CreatedAt = DateTime.UtcNow
             });
 
-            _newComment = string.Empty;
+            //API Request
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,0 +1,143 @@
+﻿@using Lumix.Blazor.Data.Photo
+@using Lumix.Blazor.Data.User
+
+
+<MudPaper Elevation="0"
+          Class="d-flex flex-grow-1 flex-column pa-4 comments-bg-white h-100">
+
+    @if (Photo is null)
+    {
+        <MudText Color="Color.Error">Дані фото відсутні</MudText>
+    }
+    else
+    {
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start" Class="mb-2">
+            <MudAvatar Size="Size.Medium">
+                <MudImage Src="@Photo.Author.ProfilePictureUrl" Alt="@Photo.Author.Username" />
+            </MudAvatar>
+
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.subtitle2">@Photo.Author.Username</MudText>
+                <MudText Typo="Typo.subtitle2">@Photo.CreatedAt.ToString("dd:MM:yyyy")</MudText>
+            </MudStack>
+        </MudStack>
+
+        <MudText Typo="Typo.h6" Class="mb-2">
+            @Photo.Title
+        </MudText>
+
+        @if(Photo.PhotoTags?.Any() == true)
+        {
+            <MudChipSet Class="mb-2" ReadOnly="true">
+                @foreach(var tag in Photo.PhotoTags)
+                {
+                    <MudChip Color="Color.Primary" Variant="Variant.Outlined" DisableRipple="true">
+                        #@tag.Tag.Name
+                    </MudChip>
+                }
+            </MudChipSet>
+        }
+
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start" Class="mb-2">
+            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start">
+                <MudIcon Icon="@Icons.Material.Filled.Favorite" />
+                <MudText>@Photo.LikeCount</MudText>
+            </MudStack>
+
+            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start">
+                <MudIcon Icon="@Icons.Material.Filled.ChatBubbleOutline" />
+                <MudText>@Photo.Comments.Count</MudText>
+            </MudStack>
+        </MudStack>
+
+
+        <MudPaper Elevation="0"
+                  Class="flex-grow-1 d-flex flex-column comments-container comments-bg-white">
+
+            @if (Photo.Comments?.Any() == true)
+            {
+                <MudPaper Elevation="0"
+                          Class="flex-grow-1 comments-scroll comments-bg-white"
+                          Style="background-color: #ffffff">
+                    <MudList Dense="false" Style="background-color: #ffffff">
+                        @foreach (var comment in Photo.Comments.OrderByDescending(x => x.CreatedAt))
+                        {
+                            <MudListItem>
+                                <MudStack Spacing="0">
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                        @Photo.Author.Username • @comment.CreatedAt.ToString("HH:mm")
+                                    </MudText>
+                                    <MudText Typo="Typo.body2">
+                                        @comment.Text
+                                    </MudText>
+                                </MudStack>
+                            </MudListItem>
+                        }
+                    </MudList>
+                </MudPaper>
+            }
+            else
+            {
+                <MudText Typo="Typo.caption" Class="mt-2">
+                    Поки що немає коментарів. Будь першим
+                </MudText>
+            }
+        </MudPaper>
+
+        <MudStack Spacing="1" Row="true" AlignItems="AlignItems.Center" Class="mt-3 comment-input-row">
+            <MudAvatar Size="Size.Medium">
+                <MudImage Src="@CurrentUser.ProfilePictureUrl" Alt="@CurrentUser.Username" />
+            </MudAvatar>
+
+            <MudTextField @bind-Value="newComment"
+                          Placeholder="Коментар"
+                          Variant="Variant.Outlined"
+                          Class="flex-grow-1"
+                          Lines="1"
+                          Immediate="true" />
+
+            <MudIconButton Icon="@Icons.Material.Filled.Send"
+                           Disabled="@string.IsNullOrWhiteSpace(newComment)"
+                           OnClick="SubmitComment" />
+        </MudStack>
+    }
+</MudPaper>
+
+<style>
+    .comments-bg-white {
+        background-color: #ffffff;
+    }
+
+
+    .comments-scroll {
+        overflow-y: auto;
+        max-height: 420px;
+        padding-right: 4px;
+        min-height: 260px;
+    }
+
+    .comment-input-row {
+        align-items: center;
+    }
+
+    .comment-input-row .mud-avatar-root {
+        align-self: center;
+    }
+</style>
+
+@code {
+    [Parameter] public PhotoDto Photo { get; set; }
+    [Parameter] public UserProfileDto CurrentUser { get; set; }
+    [Parameter] public EventCallback<string> OnAddComment { get; set; }
+
+    private string newComment = string.Empty;
+
+    private async Task SubmitComment()
+    {
+        if(string.IsNullOrWhiteSpace(newComment))
+            return;
+        await OnAddComment.InvokeAsync(newComment);
+        newComment = string.Empty;
+    }
+}
+ 

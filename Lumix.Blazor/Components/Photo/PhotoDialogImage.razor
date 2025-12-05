@@ -1,0 +1,30 @@
+﻿@using Lumix.Blazor.Data.Photo
+
+<MudPaper Elevation="0"
+          Class="d-flex oi-justify-center oi-align-center h-100 pa-0">
+
+    @if(Photo is null)
+    {
+        <MudText Color="Color.Error">Фото не знайдено</MudText>
+    }
+    else
+    {
+        <MudImage Src="@Photo.Url"
+                  Alt="@Photo.Title"
+                  Class="photo-dialog-image"/>
+    }
+</MudPaper>
+
+<style>
+    .photo-dialog-image {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+    }
+</style>
+
+@code {
+    [Parameter] public PhotoDto? Photo { get; set; }
+}
