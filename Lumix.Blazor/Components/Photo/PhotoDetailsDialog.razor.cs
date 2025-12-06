@@ -1,4 +1,5 @@
 ﻿using Lumix.Blazor.Data;
+using Lumix.Blazor.Data.Comment;
 using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Data.User;
 using Microsoft.AspNetCore.Components;
@@ -11,8 +12,6 @@ namespace Lumix.Blazor.Components.Photo
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public Guid PhotoId { get; set; }
         [Parameter] public UserProfileDto CurrentUser { get; set; }
-
-
 
         public PhotoDto Photo { get; set; }
         private bool isLoading = true;
@@ -29,29 +28,38 @@ namespace Lumix.Blazor.Components.Photo
             }
 
             Photo = result.Value;
+            await LoadCommentsAsync();
             isLoading = false;
+
+        }
+
+        private async Task LoadCommentsAsync()
+        {
+            var commentsResult = await CommentService.GetCommentByIdAsync(PhotoId);
+            if(!commentsResult.IsSuccess || commentsResult.Value is null)
+            {
+                Snackbar.Add($"Не вдалося завантажити коментарі: {commentsResult.ErrorMessage}", Severity.Error);
+                Photo.Comments = new List<CommentDto>();
+                return;
+            }
+            Photo.Comments = commentsResult.Value.ToList();
         }
 
         void Cancel() => MudDialog.Cancel();
 
-        private Task HandleCommentAdded(string comment)
+        private async Task HandleCommentAdded(CommentRequest request)
         {
-            if(Photo is null || string.IsNullOrWhiteSpace(comment))
+            if (Photo is null || string.IsNullOrWhiteSpace(request.Text))
+                return;
+
+
+            var response = await CommentService.PostCommentAsync(PhotoId, request);
+            if (!response.IsSuccess)
             {
-                return Task.CompletedTask;
+                Snackbar.Add($"Не вдалося додати коментар: {response.ErrorMessage}", Severity.Error);
+                return;
             }
-            Photo.Comments.Add(new CommentDto
-            {
-                Id = Guid.NewGuid(),
-                PhotoId = Photo.Id,
-                UserId = CurrentUser.Id,
-                Text = comment,
-                CreatedAt = DateTime.UtcNow
-            });
-
-            //API Request
-
-            return Task.CompletedTask;
+            await LoadCommentsAsync();
         }
     }
 }
