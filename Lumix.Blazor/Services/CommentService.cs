@@ -1,4 +1,5 @@
-﻿using Lumix.Blazor.Data.Comment;
+﻿using Lumix.Blazor.Configuration;
+using Lumix.Blazor.Data.Comment;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
 
@@ -8,19 +9,21 @@ namespace Lumix.Blazor.Services
     {
         private readonly HttpService _httpService;
         private readonly ILogger<PhotoService> _logger;
-        private readonly string _baseUrl = "https://localhost:7231/api/comment";
+        private readonly string _url;
 
-        public CommentService(HttpService httpService, ILogger<PhotoService> logger)
+        public CommentService(HttpService httpService, ILogger<PhotoService> logger, ApiSettings settings)
         {
             _httpService = httpService;
             _logger = logger;
+            var baseUrl = settings.BaseUrl.TrimEnd('/');
+            _url = $"{baseUrl}/api/comment";
         }
 
         public async Task<ApiResult<IEnumerable<CommentDto>>> GetCommentByIdAsync(Guid photoId)
         {
             try
             {
-                var url = $"{_baseUrl}/all/{photoId}";
+                var url = $"{_url}/all/{photoId}";
                 var response = await _httpService.GetAsync<IEnumerable<CommentDto>>(url);
                 if (!response.IsSuccess || response.Value is null)
                     return ApiResult<IEnumerable<CommentDto>>.Failure(response.ErrorMessage ?? "Не вдалося завантажити коментарі");
@@ -34,28 +37,22 @@ namespace Lumix.Blazor.Services
             }
         }
 
-        public async Task<ApiResult<bool>> PostCommentAsync(Guid photoId, CommentRequest comment)
+        public async Task<ApiResult<CommentDto>> PostCommentAsync(Guid photoId, CommentRequest comment)
         {
-            try
-            {
-                using var content = new MultipartFormDataContent();
-                content.Add(new StringContent(comment.Text), "Text");
+            try{
 
-                if (comment.ParentId.HasValue)
-                    content.Add(new StringContent(comment.ParentId.Value.ToString()), "ParentId");
+                var url = $"{_url}/{photoId}";
 
-                var url = $"{_baseUrl}/{photoId}";
-
-                var response = await _httpService.PostFormAsync<object>(url, content);
+                var response = await _httpService.PostAsync<CommentDto>(url, comment);
 
                 if(!response.IsSuccess)
-                    return ApiResult<bool>.Failure(response.ErrorMessage ?? "Не вдалося додати коментар");
+                    return ApiResult<CommentDto>.Failure(response.ErrorMessage ?? "Не вдалося додати коментар");
 
-                return ApiResult<bool>.Success(true);
+                return ApiResult<CommentDto>.Success(response.Value);
             }catch (Exception ex)
             {
                 _logger.LogError(ex, "Error posting comment for photo {PhotoId}", photoId);
-                return ApiResult<bool>.Failure($"Помилка при відправці коментаря: {ex.Message}");
+                return ApiResult<CommentDto>.Failure($"Помилка при відправці коментаря: {ex.Message}");
             }
         }
     }

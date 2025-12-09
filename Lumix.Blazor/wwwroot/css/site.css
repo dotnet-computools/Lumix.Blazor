@@ -157,3 +157,41 @@ a, .btn-link {
     align-items: center;
     justify-content: center;
 }
+
+
+.photo-dialog-grid {
+    min-height: 500px;
+}
+
+.photo-dialog-image {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.comments-bg-white {
+    background-color: #ffffff;
+}
+
+
+.comments-scroll {
+    overflow-y: auto;
+    max-height: 420px;
+    padding-right: 4px;
+    min-height: 260px;
+}
+
+.comment-input-row {
+    align-items: center;
+}
+
+.comment-input-row .mud-avatar-root {
+    align-self: center;
+}
+
+.comment-time {
+    min-width: 80px;
+    text-align: right;
+}

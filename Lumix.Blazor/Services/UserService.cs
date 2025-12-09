@@ -1,4 +1,5 @@
-﻿using Lumix.Blazor.Data.User;
+﻿using Lumix.Blazor.Configuration;
+using Lumix.Blazor.Data.User;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
 
@@ -8,11 +9,13 @@ namespace Lumix.Blazor.Services
     {
         private readonly HttpService _httpService;
         private readonly ILogger<UserService> _logger;
-        private readonly string _baseUrl = "https://localhost:7231/api/user";
-        public UserService(HttpService httpService, ILogger<UserService> logger)
+        private readonly string _url;
+        public UserService(HttpService httpService, ILogger<UserService> logger, ApiSettings settings)
         {
             _httpService = httpService;
             _logger = logger;
+            var baseUrl = settings.BaseUrl.TrimEnd('/');
+            _url = $"{baseUrl}/api/user";
         }
 
         public async Task<ApiResult<UserProfileDto>> GetProfileAsync()
@@ -20,7 +23,7 @@ namespace Lumix.Blazor.Services
             try
             {
                 _logger.LogInformation("Getting current user");
-                var response = await _httpService.GetAsync<UserProfileDto>($"{_baseUrl}/profile");
+                var response = await _httpService.GetAsync<UserProfileDto>($"{_url}/profile");
                 if (response.IsSuccess && response.Value != null)
                 {
                     _logger.LogInformation("Current user retrieved");

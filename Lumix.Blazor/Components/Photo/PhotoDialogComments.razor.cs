@@ -11,37 +11,37 @@ namespace Lumix.Blazor.Components.Photo
         [Parameter] public UserProfileDto CurrentUser { get; set; }
         [Parameter] public EventCallback<CommentRequest> OnAddComment { get; set; }
 
-        private string newComment = string.Empty;
-        private Guid? replyParentId = null;
-        private string? replyToUsername;
+        public String NewComment { get; set; } = string.Empty;
+        public Guid? ReplyParentId { get; set; } = null;
+        public string? ReplyToUsername { get; set; } = null;
 
 
         private async Task SubmitComment()
         {
-            if (string.IsNullOrWhiteSpace(newComment))
+            if (string.IsNullOrWhiteSpace(NewComment))
                 return;
 
             var request = new CommentRequest
             {
-                Text = newComment,
-                ParentId = replyParentId
+                Text = NewComment,
+                ParentId = ReplyParentId
             };
             await OnAddComment.InvokeAsync(request);
-            newComment = string.Empty;
-            replyParentId = null;
-            replyToUsername = string.Empty;
+            NewComment = string.Empty;
+            ReplyParentId = null;
+            ReplyToUsername = string.Empty;
         }
 
         private async Task StartReply(CommentDto comment)
         {
-            replyParentId = comment.Id;
-            replyToUsername = comment.Author.Username;
+            ReplyParentId = comment.Id;
+            ReplyToUsername = comment.Author.Username;
         }
 
         private async Task CancelReply()
         {
-            replyParentId = null;
-            replyToUsername = null;
+            ReplyParentId = null;
+            ReplyToUsername = null;
         }
 
         private string GetRelativeTime(DateTime createdAt)

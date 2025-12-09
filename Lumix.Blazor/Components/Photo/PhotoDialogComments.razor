@@ -163,11 +163,11 @@
             <MudAvatar Size="Size.Medium">
                 <MudImage Src="@CurrentUser.ProfilePictureUrl" Alt="@CurrentUser.Username" />
             </MudAvatar>
-            @if(!string.IsNullOrEmpty(replyToUsername))
+            @if (!string.IsNullOrEmpty(ReplyToUsername))
             {
                 <MudStack Spacing="0" AlignItems="AlignItems.Center">
                     <MudText Typo="Typo.caption" Color="Color.Default" Class="mb-1">
-                        Відповідь для @replyToUsername
+                        Відповідь для @ReplyToUsername
                     </MudText>
                     <MudButton Variant="Variant.Text"
                                Size="Size.Small"
@@ -178,7 +178,7 @@
                 </MudStack>
             }
 
-            <MudTextField @bind-Value="newComment"
+            <MudTextField @bind-Value="NewComment"
                           Placeholder="Коментар"
                           Variant="Variant.Outlined"
                           Class="flex-grow-1"
@@ -186,38 +186,11 @@
                           Immediate="true" />
 
             <MudIconButton Icon="@Icons.Material.Filled.Send"
-                           Disabled="@string.IsNullOrWhiteSpace(newComment)"
+                           Disabled="@string.IsNullOrWhiteSpace(NewComment)"
                            OnClick="SubmitComment" />
         </MudStack>
     }
 </MudPaper>
-
-<style>
-    .comments-bg-white {
-        background-color: #ffffff;
-    }
-
-
-    .comments-scroll {
-        overflow-y: auto;
-        max-height: 420px;
-        padding-right: 4px;
-        min-height: 260px;
-    }
-
-    .comment-input-row {
-        align-items: center;
-    }
-
-    .comment-input-row .mud-avatar-root {
-        align-self: center;
-    }
-
-    .comment-time {
-        min-width: 80px;
-        text-align: right;
-    }
-</style>
 
 @code {
     

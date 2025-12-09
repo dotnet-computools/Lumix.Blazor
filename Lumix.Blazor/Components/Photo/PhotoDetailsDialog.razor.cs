@@ -2,6 +2,7 @@
 using Lumix.Blazor.Data.Comment;
 using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Data.User;
+using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -12,6 +13,9 @@ namespace Lumix.Blazor.Components.Photo
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public Guid PhotoId { get; set; }
         [Parameter] public UserProfileDto CurrentUser { get; set; }
+        [Inject] public IPhotoService PhotoService { get; set; } = default!;
+        [Inject] public ICommentService CommentService { get; set; } = default!;
+        [Inject] public ISnackbar Snackbar { get; set; } = default!;
 
         public PhotoDto Photo { get; set; }
         private bool isLoading = true;
@@ -45,7 +49,6 @@ namespace Lumix.Blazor.Components.Photo
             Photo.Comments = commentsResult.Value.ToList();
         }
 
-        void Cancel() => MudDialog.Cancel();
 
         private async Task HandleCommentAdded(CommentRequest request)
         {
@@ -59,7 +62,26 @@ namespace Lumix.Blazor.Components.Photo
                 Snackbar.Add($"Не вдалося додати коментар: {response.ErrorMessage}", Severity.Error);
                 return;
             }
-            await LoadCommentsAsync();
+
+            var createdComment = response.Value;
+
+            Photo.Comments ??= new List<CommentDto>();
+
+            if (createdComment.ParentId is null)
+            {
+                Photo.Comments.Add(createdComment);
+            }
+            else
+            {
+                var parent = Photo.Comments.FirstOrDefault(c => c.Id == createdComment.ParentId);
+                if(parent is not null)
+                {
+                    parent.Children ??= new List<CommentDto>();
+                    parent.Children.Add(createdComment);
+                }
+            }
+            Photo.Comments = Photo.Comments.OrderByDescending(c => c.CreatedAt).ToList();
+
         }
     }
 }

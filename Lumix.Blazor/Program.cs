@@ -3,9 +3,11 @@ using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Text.Json;
 using Blazored.LocalStorage;
+using Lumix.Blazor.Configuration;
 using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using MudBlazor.Services;
 
@@ -48,6 +50,10 @@ builder.Services.AddHttpClient<HttpService>(client =>
             RemoteCertificateValidationCallback = (sender, cert, chain, errors) => true
         }
     });
+
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+builder.Services.AddSingleton(resolver =>
+                resolver.GetRequiredService<IOptions<ApiSettings>>().Value);
 
 builder.Services.AddScoped<HttpService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
