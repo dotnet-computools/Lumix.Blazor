@@ -2,6 +2,7 @@
 using Lumix.Blazor.Data.Comment;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
+using Microsoft.Extensions.Options;
 
 namespace Lumix.Blazor.Services
 {
@@ -11,11 +12,11 @@ namespace Lumix.Blazor.Services
         private readonly ILogger<PhotoService> _logger;
         private readonly string _url;
 
-        public CommentService(HttpService httpService, ILogger<PhotoService> logger, ApiSettings settings)
+        public CommentService(HttpService httpService, ILogger<PhotoService> logger, IOptions<ApiSettings> settings)
         {
             _httpService = httpService;
             _logger = logger;
-            var baseUrl = settings.BaseUrl.TrimEnd('/');
+            var baseUrl = settings.Value.BaseUrl.TrimEnd('/');
             _url = $"{baseUrl}/api/comment";
         }
 

@@ -1,5 +1,4 @@
-﻿using Lumix.Blazor.Data;
-using Lumix.Blazor.Data.Comment;
+﻿using Lumix.Blazor.Data.Comment;
 using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Data.User;
 using Lumix.Blazor.Services.IServices;
@@ -17,8 +16,8 @@ namespace Lumix.Blazor.Components.Photo
         [Inject] public ICommentService CommentService { get; set; } = default!;
         [Inject] public ISnackbar Snackbar { get; set; } = default!;
 
-        public PhotoDto Photo { get; set; }
-        private bool isLoading = true;
+        public PhotoDto? Photo { get; set; }
+        private bool _isLoading = true;
 
         protected override async Task OnInitializedAsync()
         {
@@ -27,13 +26,13 @@ namespace Lumix.Blazor.Components.Photo
             if (!result.IsSuccess || result.Value is null)
             {
                 Snackbar.Add("Не вдалося завантажити фото.", Severity.Error);
-                isLoading = false;
+                _isLoading = false;
                 return;
             }
 
             Photo = result.Value;
             await LoadCommentsAsync();
-            isLoading = false;
+            _isLoading = false;
 
         }
 

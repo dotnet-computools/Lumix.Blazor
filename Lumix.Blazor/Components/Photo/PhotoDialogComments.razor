@@ -1,6 +1,4 @@
-﻿@using Lumix.Blazor.Data.Comment
-@using Lumix.Blazor.Data.Photo
-@using Lumix.Blazor.Data.User
+﻿@using Lumix.Blazor.Extensions
 
 
 <MudPaper Elevation="0"
@@ -16,10 +14,19 @@
                   AlignItems="AlignItems.Center"
                   Justify="Justify.SpaceBetween"
                   Class="mb-2">
+            
 
             <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
-                <MudAvatar Size="Size.Medium">
-                    <MudImage Src="@Photo.Author.ProfilePictureUrl" Alt="@Photo.Author.Username" />
+                <MudAvatar Color="Color.Primary" Size="Size.Medium">
+                    @if (string.IsNullOrEmpty(Photo.Author.ProfilePictureUrl))
+                    {
+                        @Photo.Author.Username.GetInitials("Unknown")
+                        ;
+                    }
+                    else
+                    {
+                        <MudImage Src="@Photo.Author.ProfilePictureUrl" />
+                    }
                 </MudAvatar>
 
                 <MudText Typo="Typo.h6">@Photo.Author.Username</MudText>
@@ -192,7 +199,4 @@
     }
 </MudPaper>
 
-@code {
-    
-}
  

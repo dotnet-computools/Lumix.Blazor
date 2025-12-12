@@ -1,22 +1,16 @@
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.JSInterop;
 using Lumix.Blazor.Data.Auth;
 using Lumix.Blazor.Configuration;
+using Microsoft.Extensions.Options;
 
 public class AuthService : IAuthService
 {
     private readonly HttpService _httpService;
     private readonly ILogger<AuthService> _logger;
     private readonly IJSRuntime _jsRuntime;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly string _url;
 
     private const string accessToken = "accessToken";
@@ -26,15 +20,14 @@ public class AuthService : IAuthService
         HttpService httpService,
         ILogger<AuthService> logger,
         IJSRuntime jsRuntime,
-        ApiSettings settings,
+        IOptions<ApiSettings> settings,
         IHttpContextAccessor httpContextAccessor)
     {
         _httpService = httpService;
         _logger = logger;
         _jsRuntime = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
-        var baseUrl = settings.BaseUrl.TrimEnd('/');
+        var baseUrl = settings.Value.BaseUrl.TrimEnd('/');
         _url = $"{baseUrl}/api/auth";
-        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<ApiResult<LoginResponseDto>> LoginAsync(LoginDto loginDto)

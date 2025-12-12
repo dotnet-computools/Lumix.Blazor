@@ -1,12 +1,10 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Lumix.Blazor.Models;
 
 public class HttpService
 {
-    private static readonly HttpClient _httpClient = new HttpClient();
+    private static readonly HttpClient HttpClient = new HttpClient();
     private readonly ILogger<HttpService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly JsonSerializerOptions _jsonOptions;
@@ -41,7 +39,7 @@ public class HttpService
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
 
-            using var response = await _httpClient.SendAsync(request);
+            using var response = await HttpClient.SendAsync(request);
             var content = await response.Content.ReadAsStringAsync();
 
             _logger.LogInformation($"Response status: {response.StatusCode}, Content: {content}");

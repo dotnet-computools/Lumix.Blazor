@@ -4,6 +4,7 @@ using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
+using Microsoft.Extensions.Options;
 
 public class PhotoService : IPhotoService
 {
@@ -11,11 +12,11 @@ public class PhotoService : IPhotoService
     private readonly ILogger<PhotoService> _logger;
     private readonly string _url;
 
-    public PhotoService(HttpService httpService, ILogger<PhotoService> logger, ApiSettings settings)
+    public PhotoService(HttpService httpService, ILogger<PhotoService> logger, IOptions<ApiSettings> settings)
     {
         _httpService = httpService;
         _logger = logger;
-        var baseUrl = settings.BaseUrl.TrimEnd('/');
+        var baseUrl = settings.Value.BaseUrl.TrimEnd('/');
         _url = $"{baseUrl}/api/photo";
     }
 

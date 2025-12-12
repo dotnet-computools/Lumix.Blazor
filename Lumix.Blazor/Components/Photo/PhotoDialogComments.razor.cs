@@ -11,7 +11,7 @@ namespace Lumix.Blazor.Components.Photo
         [Parameter] public UserProfileDto CurrentUser { get; set; }
         [Parameter] public EventCallback<CommentRequest> OnAddComment { get; set; }
 
-        public String NewComment { get; set; } = string.Empty;
+        public string NewComment { get; set; } = string.Empty;
         public Guid? ReplyParentId { get; set; } = null;
         public string? ReplyToUsername { get; set; } = null;
 
@@ -32,16 +32,18 @@ namespace Lumix.Blazor.Components.Photo
             ReplyToUsername = string.Empty;
         }
 
-        private async Task StartReply(CommentDto comment)
+        private Task StartReply(CommentDto comment)
         {
             ReplyParentId = comment.Id;
             ReplyToUsername = comment.Author.Username;
+            return Task.CompletedTask;
         }
 
-        private async Task CancelReply()
+        private Task CancelReply()
         {
             ReplyParentId = null;
             ReplyToUsername = null;
+            return Task.CompletedTask;
         }
 
         private string GetRelativeTime(DateTime createdAt)
