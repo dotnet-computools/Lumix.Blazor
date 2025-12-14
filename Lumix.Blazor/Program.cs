@@ -3,10 +3,11 @@ using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Text.Json;
 using Blazored.LocalStorage;
+using Lumix.Blazor.Configuration;
 using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
+using Microsoft.Extensions.Options;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,10 +50,13 @@ builder.Services.AddHttpClient<HttpService>(client =>
         }
     });
 
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+
 builder.Services.AddScoped<HttpService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 //Authentication State Provider
 builder.Services.AddAuthorizationCore();

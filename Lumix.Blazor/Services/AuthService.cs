@@ -1,22 +1,17 @@
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.JSInterop;
 using Lumix.Blazor.Data.Auth;
+using Lumix.Blazor.Configuration;
+using Microsoft.Extensions.Options;
 
 public class AuthService : IAuthService
 {
     private readonly HttpService _httpService;
     private readonly ILogger<AuthService> _logger;
     private readonly IJSRuntime _jsRuntime;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly string _baseUrl = "https://localhost:7231/api/auth";
+    private readonly string _url;
 
     private const string accessToken = "accessToken";
     private const string refreshToken = "refreshToken";
@@ -25,12 +20,14 @@ public class AuthService : IAuthService
         HttpService httpService,
         ILogger<AuthService> logger,
         IJSRuntime jsRuntime,
+        IOptions<ApiSettings> settings,
         IHttpContextAccessor httpContextAccessor)
     {
         _httpService = httpService;
         _logger = logger;
         _jsRuntime = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
-        _httpContextAccessor = httpContextAccessor;
+        var baseUrl = settings.Value.BaseUrl.TrimEnd('/');
+        _url = $"{baseUrl}/api/auth";
     }
 
     public async Task<ApiResult<LoginResponseDto>> LoginAsync(LoginDto loginDto)
@@ -39,7 +36,8 @@ public class AuthService : IAuthService
         {
             _logger.LogInformation($"Attempting login for user: {loginDto.Email}");
 
-            var result = await _httpService.PostAsync<LoginResponseDto>($"{_baseUrl}/login", loginDto);
+            var result = await _httpService.PostAsync<LoginResponseDto>($"{_url}/login", loginDto);
+            _logger.LogInformation($"FINAL AUTH URL = {_url}");
 
             if (result.IsSuccess && result.Value != null)
             {
@@ -100,7 +98,7 @@ public class AuthService : IAuthService
         {
             _logger.LogInformation("Getting current user");
 
-            var result = await _httpService.GetAsync<UserResponseDto>($"{_baseUrl}/get-current-user");
+            var result = await _httpService.GetAsync<UserResponseDto>($"{_url}/get-current-user");
 
             if (result.IsSuccess && result.Value != null)
             {
@@ -144,7 +142,7 @@ public class AuthService : IAuthService
         {
             _logger.LogInformation($"Starting registration for {registerDto.Email}");
 
-            var result = await _httpService.PostAsync<RegisterDto>($"{_baseUrl}/register", registerDto);
+            var result = await _httpService.PostAsync<RegisterDto>($"{_url}/register", registerDto);
 
             if (result.IsSuccess)
             {

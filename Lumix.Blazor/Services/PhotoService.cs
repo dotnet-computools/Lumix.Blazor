@@ -1,19 +1,23 @@
 using System.Net.Http.Headers;
+using Lumix.Blazor.Configuration;
 using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
 using Lumix.Blazor.Services.IServices;
+using Microsoft.Extensions.Options;
 
 public class PhotoService : IPhotoService
 {
     private readonly HttpService _httpService;
     private readonly ILogger<PhotoService> _logger;
-    private readonly string _baseUrl = "https://localhost:7231/api/photo";
+    private readonly string _url;
 
-    public PhotoService(HttpService httpService, ILogger<PhotoService> logger)
+    public PhotoService(HttpService httpService, ILogger<PhotoService> logger, IOptions<ApiSettings> settings)
     {
         _httpService = httpService;
         _logger = logger;
+        var baseUrl = settings.Value.BaseUrl.TrimEnd('/');
+        _url = $"{baseUrl}/api/photo";
     }
 
     public async Task<ApiResult<PhotoUploadResponseDto>> UploadPhotoAsync(PhotoUploadDto uploadDto)
@@ -42,7 +46,7 @@ public class PhotoService : IPhotoService
                 }
             }
 
-            var response = await _httpService.PostFormAsync<PhotoUploadResponseDto>($"{_baseUrl}/upload", content);
+            var response = await _httpService.PostFormAsync<PhotoUploadResponseDto>($"{_url}/upload", content);
             
             if(!response.IsSuccess)
             {
@@ -61,7 +65,7 @@ public class PhotoService : IPhotoService
     {
         try
         {
-            var url = $"{_baseUrl}/{photoId}";
+            var url = $"{_url}/{photoId}";
             var response = await _httpService.GetAsync<PhotoDto>(url);
             
             if(!response.IsSuccess || response.Value is null)

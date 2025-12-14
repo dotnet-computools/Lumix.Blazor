@@ -1,6 +1,7 @@
-﻿using Lumix.Blazor.Data;
+﻿using Lumix.Blazor.Data.Comment;
 using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Data.User;
+using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -11,11 +12,12 @@ namespace Lumix.Blazor.Components.Photo
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public Guid PhotoId { get; set; }
         [Parameter] public UserProfileDto CurrentUser { get; set; }
+        [Inject] public IPhotoService PhotoService { get; set; } = default!;
+        [Inject] public ICommentService CommentService { get; set; } = default!;
+        [Inject] public ISnackbar Snackbar { get; set; } = default!;
 
-
-
-        public PhotoDto Photo { get; set; }
-        private bool isLoading = true;
+        public PhotoDto? Photo { get; set; }
+        private bool _isLoading = true;
 
         protected override async Task OnInitializedAsync()
         {
@@ -24,34 +26,61 @@ namespace Lumix.Blazor.Components.Photo
             if (!result.IsSuccess || result.Value is null)
             {
                 Snackbar.Add("Не вдалося завантажити фото.", Severity.Error);
-                isLoading = false;
+                _isLoading = false;
                 return;
             }
 
             Photo = result.Value;
-            isLoading = false;
+            await LoadCommentsAsync();
+            _isLoading = false;
+
         }
 
-        void Cancel() => MudDialog.Cancel();
-
-        private Task HandleCommentAdded(string comment)
+        private async Task LoadCommentsAsync()
         {
-            if(Photo is null || string.IsNullOrWhiteSpace(comment))
+            var commentsResult = await CommentService.GetCommentByIdAsync(PhotoId);
+            if(!commentsResult.IsSuccess || commentsResult.Value is null)
             {
-                return Task.CompletedTask;
+                Snackbar.Add($"Не вдалося завантажити коментарі: {commentsResult.ErrorMessage}", Severity.Error);
+                Photo.Comments = new List<CommentDto>();
+                return;
             }
-            Photo.Comments.Add(new CommentDto
+            Photo.Comments = commentsResult.Value.ToList();
+        }
+
+
+        private async Task HandleCommentAdded(CommentRequest request)
+        {
+            if (Photo is null || string.IsNullOrWhiteSpace(request.Text))
+                return;
+
+
+            var response = await CommentService.PostCommentAsync(PhotoId, request);
+            if (!response.IsSuccess)
             {
-                Id = Guid.NewGuid(),
-                PhotoId = Photo.Id,
-                UserId = CurrentUser.Id,
-                Text = comment,
-                CreatedAt = DateTime.UtcNow
-            });
+                Snackbar.Add($"Не вдалося додати коментар: {response.ErrorMessage}", Severity.Error);
+                return;
+            }
 
-            //API Request
+            var createdComment = response.Value;
 
-            return Task.CompletedTask;
+            Photo.Comments ??= new List<CommentDto>();
+
+            if (createdComment.ParentId is null)
+            {
+                Photo.Comments.Add(createdComment);
+            }
+            else
+            {
+                var parent = Photo.Comments.FirstOrDefault(c => c.Id == createdComment.ParentId);
+                if(parent is not null)
+                {
+                    parent.Children ??= new List<CommentDto>();
+                    parent.Children.Add(createdComment);
+                }
+            }
+            Photo.Comments = Photo.Comments.OrderByDescending(c => c.CreatedAt).ToList();
+
         }
     }
 }

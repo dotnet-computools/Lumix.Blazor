@@ -1,17 +1,8 @@
-﻿@using Lumix.Blazor.Data
-@using Lumix.Blazor.Data.Photo
-@using Lumix.Blazor.Data.User
-@using Lumix.Blazor.Services.IServices
-@inject IPhotoService PhotoService
-@inject ISnackbar Snackbar
-
-
-<MudDialog>
+﻿<MudDialog>
     <DialogContent>
-        @if (isLoading)
+        @if (_isLoading)
         {
             <MudStack Justify="Justify.Center"
-                      AlignItems="AlignItems.Center"
                       Class="pa-6"
                       Style="min-height:400px">
                 <MudProgressCircular Indeterminate="true" />
@@ -42,15 +33,5 @@
 
 </MudDialog>
 
-
-<style>
-    .photo-dialog-grid {
-        min-height: 500px;
-    }
-</style>
-
-@code {
-    
-}
 
 
