@@ -31,7 +31,7 @@ public class PhotoService : IPhotoService
 
             using var content = new MultipartFormDataContent();
             
-            content.Add(new StringContent(uploadDto.Title), "Title");
+            content.Add(new StringContent(uploadDto.Title ?? string.Empty), "Title");
             content.Add(new StringContent(uploadDto.IsAvatar.ToString().ToLowerInvariant()), "IsAvatar");
             
             var fileContent = new StreamContent(uploadDto.PhotoFile.OpenReadStream(maxAllowedSize: 10485760));

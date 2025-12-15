@@ -1,4 +1,5 @@
-﻿using Lumix.Blazor.Data.Photo;
+﻿using System.Text.RegularExpressions;
+using Lumix.Blazor.Data.Photo;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -10,7 +11,7 @@ namespace Lumix.Blazor.Pages.Photo
     public partial class MakePost
     {
         public string? TagsInput { get; set; }
-        private List<string> _previewTags = new();
+        private readonly HashSet<string> _previewTags = new(StringComparer.OrdinalIgnoreCase);
         private string? _previewUrl;
         private PhotoUploadDto _model = new();
         private bool isPhotoSelected = false;
@@ -19,66 +20,37 @@ namespace Lumix.Blazor.Pages.Photo
         [Inject] ISnackbar Snackbar { get; set; }
         [Inject] NavigationManager NavigationManager { get; set; }
 
-        private async Task OnFileSelected(IBrowserFile file)
+        private static readonly Regex TagSplitRegex =
+            new(@"[,\s./]+", RegexOptions.Compiled);
+
+        private void OnFileSelected(IBrowserFile file)
         {
-            Console.WriteLine("FILE SELECTED: " + (file?.Name ?? "NULL"));
             _model.PhotoFile = file;
             isPhotoSelected = true;
         }
 
-        private async Task HandleTagKeyDown(KeyboardEventArgs e)
+        private void HandleTagKeyDown(KeyboardEventArgs e)
         {
-            Console.WriteLine($"Key pressed: {e.Key}");
             if (e.Key != "Enter")
                 return;
 
-            var raw = TagsInput.Trim();
-            if (string.IsNullOrWhiteSpace(raw))
-                return;
-
-            var parts = raw
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if (parts.Length == 1)
-            {
-                var tag = parts[0];
-                if (!_previewTags.Contains(tag, StringComparer.OrdinalIgnoreCase))
-                {
-                    _previewTags.Add(tag);
-                }
-            }
-            else
-            {
-                foreach (var tag in parts)
-                {
-                    if (!_previewTags.Contains(tag, StringComparer.OrdinalIgnoreCase))
-                        _previewTags.Add(tag);
-                }
-            }
-            TagsInput = string.Empty;
+            CommitTags();
         }
-
 
         private async Task HandleUpload()
         {
-            if (!string.IsNullOrWhiteSpace(TagsInput))
-            {
-                var raw = TagsInput.Trim();
-                var parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            CommitTags();
 
-                foreach (var tag in parts)
-                {
-                    if (!_previewTags.Contains(tag, StringComparer.OrdinalIgnoreCase))
-                        _previewTags.Add(tag);
-                }
-            }
+            _model.Tags = _previewTags.ToList();
 
-            _model.Tags = new List<string>(_previewTags);
-            if (_model.PhotoFile == null)
+            if (_model.PhotoFile is null)
             {
                 Snackbar.Add("Будь ласка, оберіть фото для завантаження.", Severity.Error);
                 return;
             }
+
             var result = await PhotoService.UploadPhotoAsync(_model);
+
             if (result.IsSuccess)
             {
                 Snackbar.Add("Фото успішно опубліковано!", Severity.Success);
@@ -88,6 +60,24 @@ namespace Lumix.Blazor.Pages.Photo
             {
                 Snackbar.Add($"Помилка при публікації фото: {result.ErrorMessage}", Severity.Error);
             }
+        }
+
+        private void CommitTags()
+        {
+            foreach (var tag in ParseTags(TagsInput))
+                _previewTags.Add(tag);
+
+            TagsInput = string.Empty;
+        }
+
+        private IEnumerable<string> ParseTags(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return Enumerable.Empty<string>();
+
+            return TagSplitRegex
+                .Split(input.Trim())
+                .Where(t => !string.IsNullOrWhiteSpace(t));
         }
     }
 }
