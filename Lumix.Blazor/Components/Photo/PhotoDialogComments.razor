@@ -32,14 +32,34 @@
                 <MudText Typo="Typo.h6">@Photo.Author.Username</MudText>
             </MudStack>
 
-            <MudText Typo="Typo.caption" Color="Color.Default">
-                @Photo.CreatedAt.ToString("dd.MM.yyyy")
-            </MudText>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudText Typo="Typo.caption" Color="Color.Default">
+                    @Photo.CreatedAt.ToString("dd.MM.yyyy")
+                </MudText>
+
+                @if (CanDeletePhoto)
+                {
+                    <MudMenu AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopRight" Dense="true">
+                        <ActivatorContent>
+                            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+                        </ActivatorContent>
+
+                        <ChildContent>
+                            <MudMenuItem OnClick="@(() => ConfirmDeletePhoto(Photo.Id))">
+                                <MudIcon Icon="@Icons.Material.Filled.Delete" Class="me-2" />
+                                Видалити фото
+                            </MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                }
+            </MudStack>
         </MudStack>
 
         <MudText Typo="Typo.h6" Class="mb-2">
             @Photo.Title
         </MudText>
+            
+        
 
         @if(Photo.PhotoTags?.Any() == true)
         {

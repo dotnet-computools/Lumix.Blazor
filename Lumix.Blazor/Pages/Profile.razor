@@ -3,8 +3,8 @@
 @using Lumix.Blazor.Data.User
 @using Lumix.Blazor.Services.IServices
 @inject IUserService UserService
-@inject ILogger<Profile> Logger
 @inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthStateProvider
 
 @using Lumix.Blazor.Components.Profile;
 
@@ -14,13 +14,15 @@
 
 @code {
     public UserProfileDto ProfileDto { get; set; } = new();
-    private bool isInitialized = false;
+    private bool _isInitialized = false;
+    public Guid CurrentUserId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var result = await UserService.GetProfileAsync();
         ProfileDto = result.Value;
-        isInitialized = true;
+        _isInitialized = true;
+        CurrentUserId = (await UserService.GetMeAsync()).Value;
     }
 
     private async Task OpenPhotoDialog(Guid photoId)
@@ -33,8 +35,15 @@
             CloseButton = true
         };
 
-        var parameters = new DialogParameters { { "PhotoId", photoId }, {"CurrentUser", ProfileDto } };
+        var parameters = new DialogParameters { { "PhotoId", photoId }, {"CurrentUser", ProfileDto }, { "CurrentUserId", CurrentUserId } };
 
-        await DialogService.ShowAsync<PhotoDetailsDialog>("", parameters, options);
+        var dialog = await DialogService.ShowAsync<PhotoDetailsDialog>("", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled && result.Data is Guid deletedPhotoId)
+        {
+            ProfileDto.Photos.RemoveAll(p => p.Id == deletedPhotoId);
+        }
+
     }
 }

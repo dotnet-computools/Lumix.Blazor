@@ -79,4 +79,10 @@ public class PhotoService : IPhotoService
             return ApiResult<PhotoDto>.Failure($"Failed to load photo: {ex.Message}");
         }
     }
+
+    public async Task<ApiResult<object>> DeletePhotoAsync(Guid photoId)
+    {
+        var url = $"{_url}/{photoId}";
+        return await _httpService.DeleteAsync<object>(url);
+    }
 }
