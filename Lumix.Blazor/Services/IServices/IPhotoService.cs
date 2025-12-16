@@ -8,4 +8,5 @@ public interface IPhotoService
 {
     Task<ApiResult<PhotoUploadResponseDto>> UploadPhotoAsync(PhotoUploadDto uploadDto);
     Task<ApiResult<PhotoDto>> GetPhotoByIdAsync(Guid photoId);
+    Task<ApiResult<object>> DeletePhotoAsync(Guid photoId);
 }

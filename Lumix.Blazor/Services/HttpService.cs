@@ -40,6 +40,10 @@ public class HttpService
             }
 
             using var response = await HttpClient.SendAsync(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return ApiResult<T>.Success(default);
+
             var content = await response.Content.ReadAsStringAsync();
 
             _logger.LogInformation($"Response status: {response.StatusCode}, Content: {content}");
@@ -75,6 +79,12 @@ public class HttpService
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
         request.Content = formData;
+        return await SendRequestAsync<T>(request);
+    }
+
+    public async Task<ApiResult<T>> DeleteAsync<T>(string uri)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Delete, uri);
         return await SendRequestAsync<T>(request);
     }
 }
