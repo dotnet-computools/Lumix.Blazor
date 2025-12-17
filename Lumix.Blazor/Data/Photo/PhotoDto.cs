@@ -15,7 +15,7 @@ namespace Lumix.Blazor.Data.Photo
         public int LikeCount { get; set; }
         public bool IsAvatar { get; set; }
 
-        public UserPreviewDto Author { get; set; } = default!;
+        public UserPreviewDto Author { get; set; } = null!;
         public List<LikeDto> Likes { get; set; } = new();
         public List<CommentDto> Comments { get; set; } = new();
         public List<PhotoTagDto> PhotoTags { get; set; } = new();

@@ -1,49 +1,6 @@
 @page "/profile"
-@using Lumix.Blazor.Components.Photo
-@using Lumix.Blazor.Data.User
-@using Lumix.Blazor.Services.IServices
-@inject IUserService UserService
-@inject IDialogService DialogService
-@inject AuthenticationStateProvider AuthStateProvider
 
 @using Lumix.Blazor.Components.Profile;
 
 
 <ProfileCard Profile="@ProfileDto" OnOpenPhoto="@OpenPhotoDialog"/>
-
-
-@code {
-    public UserProfileDto ProfileDto { get; set; } = new();
-    private bool _isInitialized = false;
-    public Guid CurrentUserId { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var result = await UserService.GetProfileAsync();
-        ProfileDto = result.Value;
-        _isInitialized = true;
-        CurrentUserId = (await UserService.GetMeAsync()).Value;
-    }
-
-    private async Task OpenPhotoDialog(Guid photoId)
-    {
-        var options = new DialogOptions
-        {
-            MaxWidth = MaxWidth.ExtraLarge,
-            FullWidth = true,
-            CloseOnEscapeKey = true,
-            CloseButton = true
-        };
-
-        var parameters = new DialogParameters { { "PhotoId", photoId }, {"CurrentUser", ProfileDto }, { "CurrentUserId", CurrentUserId } };
-
-        var dialog = await DialogService.ShowAsync<PhotoDetailsDialog>("", parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Cancelled && result.Data is Guid deletedPhotoId)
-        {
-            ProfileDto.Photos.RemoveAll(p => p.Id == deletedPhotoId);
-        }
-
-    }
-}

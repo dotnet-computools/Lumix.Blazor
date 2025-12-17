@@ -7,5 +7,6 @@ namespace Lumix.Blazor.Services.IServices
     {
         Task<ApiResult<CommentDto>> PostCommentAsync(Guid photoId, CommentRequest comment);
         Task<ApiResult<IEnumerable<CommentDto>>> GetCommentByIdAsync(Guid photoId);
+        Task<ApiResult<object>> DeleteCommentAsync(Guid commentId, Guid photoId);
     }
 }

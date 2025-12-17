@@ -12,7 +12,6 @@ namespace Lumix.Blazor.Components.Photo
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public Guid PhotoId { get; set; }
         [Parameter] public UserProfileDto CurrentUser { get; set; }
-        [Parameter] public Guid CurrentUserId { get; set; }
         [Inject] public IPhotoService PhotoService { get; set; } = default!;
         [Inject] public ICommentService CommentService { get; set; } = default!;
         [Inject] public ISnackbar Snackbar { get; set; } = default!;
