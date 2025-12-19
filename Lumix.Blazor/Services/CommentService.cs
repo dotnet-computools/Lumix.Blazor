@@ -56,5 +56,11 @@ namespace Lumix.Blazor.Services
                 return ApiResult<CommentDto>.Failure($"Помилка при відправці коментаря: {ex.Message}");
             }
         }
+
+        public async Task<ApiResult<object>> DeleteCommentAsync(Guid commentId, Guid photoId)
+        {
+            var url = $"{_url}/{commentId}/{photoId}";
+            return await _httpService.DeleteAsync<object>(url);
+        }
     }
 }

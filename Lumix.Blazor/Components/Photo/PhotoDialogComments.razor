@@ -122,11 +122,29 @@
                                             </MudButton>
                                         </MudStack>
 
-                                        <MudText Typo="Typo.caption"
-                                                 Color="Color.Default"
-                                                 Class="comment-time">
-                                            @GetRelativeTime(comment.CreatedAt)
-                                        </MudText>
+                                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                                            <MudText Typo="Typo.caption"
+                                                     Color="Color.Default"
+                                                     Class="comment-time">
+                                                @GetRelativeTime(comment.CreatedAt)
+                                            </MudText>
+                                            @if (CanDeleteComment(comment))
+                                            {
+                                                <MudMenu AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopRight" Dense="true">
+                                                    <ActivatorContent>
+                                                        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+                                                    </ActivatorContent>
+
+                                                    <ChildContent>
+                                                        <MudMenuItem OnClick="@(() => ConfirmDeleteComment(comment.Id))">
+                                                            <MudIcon Icon="@Icons.Material.Filled.Delete" Class="me-2" />
+                                                            Видалити коментар
+                                                        </MudMenuItem>
+                                                    </ChildContent>
+                                                </MudMenu>
+                                            }
+                                        </MudStack>
+
                                     </MudStack>
 
                                     <MudText Typo="Typo.body2" Class="mt-1 ml-8">
@@ -158,11 +176,29 @@
                                                         </MudText>
                                                     </MudStack>
 
-                                                    <MudText Typo="Typo.caption"
-                                                             Color="Color.Default"
-                                                             Class="comment-time">
-                                                        @GetRelativeTime(reply.CreatedAt)
-                                                    </MudText>
+                                                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                                                        <MudText Typo="Typo.caption"
+                                                                 Color="Color.Default"
+                                                                 Class="comment-time">
+                                                            @GetRelativeTime(reply.CreatedAt)
+                                                        </MudText>
+                                                    
+                                                        @if (CanDeleteComment(reply))
+                                                        {
+                                                            <MudMenu AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopRight" Dense="true">
+                                                                <ActivatorContent>
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+                                                                </ActivatorContent>
+
+                                                                <ChildContent>
+                                                                    <MudMenuItem OnClick="@(() => ConfirmDeleteComment(reply.Id))">
+                                                                        <MudIcon Icon="@Icons.Material.Filled.Delete" Class="me-2" />
+                                                                        Видалити коментар
+                                                                    </MudMenuItem>
+                                                                </ChildContent>
+                                                            </MudMenu>
+                                                        }
+                                                    </MudStack>
                                                 </MudStack>
 
                                                 <MudText Typo="Typo.body2" Class="mt-1 ml-8">
