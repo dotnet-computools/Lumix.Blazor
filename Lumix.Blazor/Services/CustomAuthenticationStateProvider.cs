@@ -6,16 +6,16 @@ namespace Lumix.Blazor.Services
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly IAuthService _authService;
+        private readonly ITokenProvider _tokenProvider;
 
-        public CustomAuthenticationStateProvider(IAuthService authService)
+        public CustomAuthenticationStateProvider(ITokenProvider tokenProvider)
         {
-            _authService = authService;
+            _tokenProvider = tokenProvider;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = await _authService.GetAccessToken();
+            var token = await _tokenProvider.GetAccessTokenAsync();
 
             if (string.IsNullOrEmpty(token))
             {

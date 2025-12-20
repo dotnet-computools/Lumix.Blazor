@@ -1,16 +1,20 @@
+using Lumix.Blazor.Configuration;
+using Lumix.Blazor.Data.Auth;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
+using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
-using Microsoft.JSInterop;
-using Lumix.Blazor.Data.Auth;
-using Lumix.Blazor.Configuration;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
+
 
 public class AuthService : IAuthService
 {
     private readonly HttpService _httpService;
     private readonly ILogger<AuthService> _logger;
     private readonly IJSRuntime _jsRuntime;
+    private readonly AuthenticationStateProvider _authStateProvider;
     private readonly string _url;
 
     private const string accessToken = "accessToken";
@@ -21,11 +25,13 @@ public class AuthService : IAuthService
         ILogger<AuthService> logger,
         IJSRuntime jsRuntime,
         IOptions<ApiSettings> settings,
-        IHttpContextAccessor httpContextAccessor)
+        AuthenticationStateProvider authStateProvider)
     {
         _httpService = httpService;
         _logger = logger;
-        _jsRuntime = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
+        _jsRuntime = jsRuntime;
+        _authStateProvider = authStateProvider;
+
         var baseUrl = settings.Value.BaseUrl.TrimEnd('/');
         _url = $"{baseUrl}/api/auth";
     }
@@ -34,129 +40,53 @@ public class AuthService : IAuthService
     {
         try
         {
-            _logger.LogInformation($"Attempting login for user: {loginDto.Email}");
-
-            var result = await _httpService.PostAsync<LoginResponseDto>($"{_url}/login", loginDto);
-            _logger.LogInformation($"FINAL AUTH URL = {_url}");
+            var result = await _httpService.PostAsync<LoginResponseDto>(
+                $"{_url}/login", loginDto);
 
             if (result.IsSuccess && result.Value != null)
             {
-                try
-                {
-                    await _jsRuntime.InvokeVoidAsync("setCookie", accessToken, result.Value.AccessToken, 1);
-                    await _jsRuntime.InvokeVoidAsync("setCookie", refreshToken, result.Value.RefreshToken, 1);
+                await _jsRuntime.InvokeVoidAsync(
+                    "setCookie", accessToken, result.Value.AccessToken, 1);
 
-                    _logger.LogInformation("Login successful, tokens stored in cookies");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to store tokens in cookies");
-                }
+                await _jsRuntime.InvokeVoidAsync(
+                    "setCookie", refreshToken, result.Value.RefreshToken, 1);
+
+                (_authStateProvider as CustomAuthenticationStateProvider)
+                    ?.NotifyUserAuthenticationStateChanged();
             }
 
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Login failed with exception");
+            _logger.LogError(ex, "Login failed");
             return ApiResult<LoginResponseDto>.Failure(ex.Message);
-        }
-    }
-
-    
-
-    public async Task<bool> IsAuthenticated()
-    {
-        try
-        {
-            var token = await GetAccessToken();
-            return !string.IsNullOrEmpty(token);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error checking authentication status");
-            return false;
-        }
-    }
-
-    public async Task<string?> GetAccessToken()
-    {
-        try
-        {
-            return await _jsRuntime.InvokeAsync<string?>("getCookie", accessToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting access token from cookies");
-            return null;
-        }
-    }
-
-    public async Task<ApiResult<Guid?>> GetCurrentUserAsync()
-    {
-        try
-        {
-            _logger.LogInformation("Getting current user");
-
-            var result = await _httpService.GetAsync<UserResponseDto>($"{_url}/get-current-user");
-
-            if (result.IsSuccess && result.Value != null)
-            {
-                _logger.LogInformation("Current user retrieved");
-                return ApiResult<Guid?>.Success(result.Value.UserId);
-            }
-
-            _logger.LogWarning($"Failed to get current user: {result.ErrorMessage}");
-            return ApiResult<Guid?>.Failure(result.ErrorMessage);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting current user");
-            return ApiResult<Guid?>.Failure(ex.Message);
         }
     }
 
     public async Task Logout()
     {
-        try
-        {
-            var options = new CookieOptions
-            {
-                Expires = DateTime.UtcNow.AddDays(-1)
-            };
+        await _jsRuntime.InvokeVoidAsync("eraseCookie", accessToken);
+        await _jsRuntime.InvokeVoidAsync("eraseCookie", refreshToken);
 
-            await _jsRuntime.InvokeVoidAsync("eraseCookie", accessToken);
-            await _jsRuntime.InvokeVoidAsync("eraseCookie", refreshToken);
-
-            _logger.LogInformation("User logged out, tokens removed from cookies");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error during logout");
-        }
+        (_authStateProvider as CustomAuthenticationStateProvider)
+            ?.NotifyUserAuthenticationStateChanged();
     }
 
     public async Task<ApiResult<RegisterDto>> RegisterAsync(RegisterDto registerDto)
     {
-        try
-        {
-            _logger.LogInformation($"Starting registration for {registerDto.Email}");
+        return await _httpService.PostAsync<RegisterDto>(
+            $"{_url}/register", registerDto);
+    }
 
-            var result = await _httpService.PostAsync<RegisterDto>($"{_url}/register", registerDto);
+    public async Task<ApiResult<Guid?>> GetCurrentUserAsync()
+    {
+        var result = await _httpService.GetAsync<UserResponseDto>(
+            $"{_url}/get-current-user");
 
-            if (result.IsSuccess)
-            {
-                _logger.LogInformation($"Registration successful for {registerDto.Email}");
-                return ApiResult<RegisterDto>.Success(registerDto);
-            }
-
-            _logger.LogWarning($"Registration failed for {registerDto.Email}: {result.ErrorMessage}");
-            return ApiResult<RegisterDto>.Failure(result.ErrorMessage);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Exception during registration for {registerDto.Email}");
-            return ApiResult<RegisterDto>.Failure(ex.Message);
-        }
+        return result.IsSuccess && result.Value != null
+            ? ApiResult<Guid?>.Success(result.Value.UserId)
+            : ApiResult<Guid?>.Failure(result.ErrorMessage);
     }
 }
+
