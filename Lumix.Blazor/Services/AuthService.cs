@@ -51,8 +51,8 @@ public class AuthService : IAuthService
                 await _jsRuntime.InvokeVoidAsync(
                     "setCookie", refreshToken, result.Value.RefreshToken, 1);
 
-                (_authStateProvider as CustomAuthenticationStateProvider)
-                    ?.NotifyUserAuthenticationStateChanged();
+                if(_authStateProvider is CustomAuthenticationStateProvider customAuthenticationStateProvider)
+                    customAuthenticationStateProvider.NotifyUserAuthenticationStateChanged();
             }
 
             return result;
