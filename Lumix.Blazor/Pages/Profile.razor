@@ -8,10 +8,6 @@
 {
     <MudProgressCircular Indeterminate="true" />
 }
-else if (Error is not null)
-{
-    <MudAlert Severity="Severity.Error">@Error</MudAlert>
-}
 else if (ProfileDto is not null)
 {
     <ProfileCard Profile="@ProfileDto" OnOpenPhoto="@OpenPhotoDialog" />

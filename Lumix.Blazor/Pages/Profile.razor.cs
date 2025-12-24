@@ -13,6 +13,7 @@ namespace Lumix.Blazor.Pages
         public UserProfileDto? ProfileDto { get; set; }
         [Inject] private IUserService UserService { get; set; } = null!;
         [Inject] private IDialogService DialogService { get; set; } = null!;
+        [Inject] private ISnackbar Snackbar { get; set; } = null!;
         public bool IsLoading { get; set; }
         public string? Error { get; set; }
 
@@ -25,6 +26,13 @@ namespace Lumix.Blazor.Pages
         {
             IsLoading = true;
             var meResult = await UserService.GetMyProfileAsync();
+            if (!meResult.IsSuccess)
+            {
+                IsLoading = false;
+                Snackbar.Add("Failed to load your profile info.", Severity.Error);
+                return;
+            }
+
             var me = meResult.Value;
 
             Viewer = new UserPreviewDto()
@@ -40,9 +48,11 @@ namespace Lumix.Blazor.Pages
                 ? meResult
                 : await UserService.GetProfileAsync(UserId.Value);
 
-            if (profileResult.IsFailed)
+            if (!profileResult.IsSuccess)
             {
-                Error = profileResult.ErrorMessage;
+                IsLoading = false;
+                Snackbar.Add("Failed to load user profile.", Severity.Error);
+                return;
             }
 
             ProfileDto = profileResult.Value;
