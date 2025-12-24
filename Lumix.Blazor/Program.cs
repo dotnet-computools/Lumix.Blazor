@@ -35,9 +35,6 @@ builder.Services.AddHttpClient<HttpService>((sp, client) =>
     client.BaseAddress = new Uri(baseUrl);
     client.DefaultRequestHeaders.Accept.Clear();
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-{
-    UseCookies = false // IMPORTANT: Disable cookies to prevent auth context leakage between circuits
 });
 
 builder.Services.AddScoped<ProtectedLocalStorage>();
