@@ -20,5 +20,15 @@ namespace Lumix.Blazor.Services
 
         public Task<string?> GetRefreshTokenAsync()
             => _js.InvokeAsync<string?>("getCookie", RefreshTokenKey).AsTask();
+
+        public Task SetTokensAsync(string accessToken, string refreshToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ClearAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

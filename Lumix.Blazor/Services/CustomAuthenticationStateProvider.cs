@@ -31,9 +31,10 @@ namespace Lumix.Blazor.Services
             return new AuthenticationState(user);
         }
 
-        public void NotifyUserAuthenticationStateChanged()
+        public async Task NotifyUserAuthenticationStateChanged()
         {
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            var state = await GetAuthenticationStateAsync();
+            NotifyAuthenticationStateChanged(Task.FromResult(state));
         }
     }
 }

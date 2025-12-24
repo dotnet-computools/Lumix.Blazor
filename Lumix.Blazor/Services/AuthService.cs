@@ -13,23 +13,20 @@ public class AuthService : IAuthService
 {
     private readonly HttpService _httpService;
     private readonly ILogger<AuthService> _logger;
-    private readonly IJSRuntime _jsRuntime;
+    private readonly ITokenProvider _tokenProvider;
     private readonly AuthenticationStateProvider _authStateProvider;
     private readonly string _url;
-
-    private const string accessToken = "accessToken";
-    private const string refreshToken = "refreshToken";
 
     public AuthService(
         HttpService httpService,
         ILogger<AuthService> logger,
-        IJSRuntime jsRuntime,
+        ITokenProvider tokenProvider,
         IOptions<ApiSettings> settings,
         AuthenticationStateProvider authStateProvider)
     {
         _httpService = httpService;
         _logger = logger;
-        _jsRuntime = jsRuntime;
+        _tokenProvider = tokenProvider;
         _authStateProvider = authStateProvider;
 
         var baseUrl = settings.Value.BaseUrl.TrimEnd('/');
@@ -45,13 +42,11 @@ public class AuthService : IAuthService
 
             if (result.IsSuccess && result.Value != null)
             {
-                await _jsRuntime.InvokeVoidAsync(
-                    "setCookie", accessToken, result.Value.AccessToken, 1);
+                await _tokenProvider.SetTokensAsync(
+                    result.Value.AccessToken,
+                    result.Value.RefreshToken);
 
-                await _jsRuntime.InvokeVoidAsync(
-                    "setCookie", refreshToken, result.Value.RefreshToken, 1);
-
-                if(_authStateProvider is CustomAuthenticationStateProvider customAuthenticationStateProvider)
+                if (_authStateProvider is CustomAuthenticationStateProvider customAuthenticationStateProvider)
                     customAuthenticationStateProvider.NotifyUserAuthenticationStateChanged();
             }
 
@@ -66,9 +61,7 @@ public class AuthService : IAuthService
 
     public async Task Logout()
     {
-        await _jsRuntime.InvokeVoidAsync("eraseCookie", accessToken);
-        await _jsRuntime.InvokeVoidAsync("eraseCookie", refreshToken);
-
+        await _tokenProvider.ClearAsync();
         (_authStateProvider as CustomAuthenticationStateProvider)
             ?.NotifyUserAuthenticationStateChanged();
     }
