@@ -1,0 +1,18 @@
+﻿@page "/search"
+
+<MudButton Variant="Variant.Filled" 
+           Style="color: white; background-color: orangered" 
+           OnClick="OpenUserProfile">
+    Відкрити сторінку користувача
+</MudButton>
+
+@code {
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+    private void OpenUserProfile()
+    {
+        var userId = Guid.TryParse("F66A4FD0-A63C-461B-A7F7-2F771E7FB59A", out var id);
+        NavigationManager.NavigateTo($"/profile/{id}");
+    }
+}

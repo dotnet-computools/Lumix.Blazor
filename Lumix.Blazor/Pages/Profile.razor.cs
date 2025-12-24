@@ -8,14 +8,45 @@ namespace Lumix.Blazor.Pages
 {
     public partial class Profile
     {
-        public UserProfileDto? ProfileDto { get; set; } = new();
+        [Parameter] public Guid? UserId { get; set; }
+        public UserPreviewDto? Viewer { get; set; }
+        public UserProfileDto? ProfileDto { get; set; }
         [Inject] private IUserService UserService { get; set; } = null!;
         [Inject] private IDialogService DialogService { get; set; } = null!;
+        public bool IsLoading { get; set; }
+        public string? Error { get; set; }
 
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnParametersSetAsync()
         {
-            var result = await UserService.GetProfileAsync();
-            ProfileDto = result.Value;
+            await LoadProfile();
+        }
+
+        private async Task LoadProfile()
+        {
+            IsLoading = true;
+            var meResult = await UserService.GetMyProfileAsync();
+            var me = meResult.Value;
+
+            Viewer = new UserPreviewDto()
+            {
+                Id = me.Id,
+                ProfilePictureUrl = me.ProfilePictureUrl,
+                Username = me.Username
+            };
+
+
+
+            var profileResult = UserId is null
+                ? meResult
+                : await UserService.GetProfileAsync(UserId.Value);
+
+            if (profileResult.IsFailed)
+            {
+                Error = profileResult.ErrorMessage;
+            }
+
+            ProfileDto = profileResult.Value;
+            IsLoading = false;
         }
 
         private async Task OpenPhotoDialog(Guid photoId)
@@ -28,7 +59,7 @@ namespace Lumix.Blazor.Pages
                 CloseButton = true
             };
 
-            var parameters = new DialogParameters { { "PhotoId", photoId }, { "CurrentUser", ProfileDto } };
+            var parameters = new DialogParameters { { "PhotoId", photoId }, { "Viewer", Viewer } };
 
             var dialog = await DialogService.ShowAsync<PhotoDetailsDialog>("", parameters, options);
             var result = await dialog.Result;

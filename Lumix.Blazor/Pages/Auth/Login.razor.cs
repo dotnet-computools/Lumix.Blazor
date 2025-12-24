@@ -13,7 +13,6 @@ namespace Lumix.Blazor.Pages.Auth
         [Inject] private IAuthService AuthService { get; set; } = default!;
         [Inject] private NavigationManager NavigationManager { get; set; } = default!;
         [Inject] private ILogger<Login> Logger { get; set; } = default!;
-        [Inject] private ILocalStorageService LocalStorage { get; set; } = default!;
         [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
         private LoginDto LoginDto { get; set; } = new();
@@ -35,25 +34,22 @@ namespace Lumix.Blazor.Pages.Auth
             activeImages[index] = false;
             StateHasChanged();
         }
-        
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
-            {
-                this.firstRender = false;
-                try
-                {
-                    if (await AuthService.IsAuthenticated())
-                    {
-                        NavigationManager.NavigateTo("/dashboard");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Error checking authentication status");
-                }
+            if (!firstRender) return;
 
-                await InvokeAsync(StateHasChanged);
+            try
+            {
+                var state = await AuthStateProvider.GetAuthenticationStateAsync();
+                if (state.User.Identity?.IsAuthenticated == true)
+                {
+                    NavigationManager.NavigateTo("/dashboard");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error checking authentication status");
             }
         }
 
@@ -75,13 +71,7 @@ namespace Lumix.Blazor.Pages.Auth
                 if (result.IsSuccess)
                 {
                     success = true;
-                    if (AuthStateProvider is CustomAuthenticationStateProvider custom)
-                    {
-                        custom.NotifyUserAuthenticationStateChanged();
-                    }
-                    Logger.LogInformation("User successfully logged in: {Email}", LoginDto.Email);
-
-                    await Task.Delay(1000);
+                    await Task.Delay(500);
                     NavigationManager.NavigateTo("/");
                 }
                 else

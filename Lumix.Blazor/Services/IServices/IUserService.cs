@@ -5,7 +5,7 @@ namespace Lumix.Blazor.Services.IServices
 {
     public interface IUserService
     {
-        Task<ApiResult<UserProfileDto>> GetProfileAsync();
-        Task<ApiResult<Guid>> GetMeAsync();
+        Task<ApiResult<UserProfileDto>> GetMyProfileAsync();
+        Task<ApiResult<UserProfileDto>> GetProfileAsync(Guid userId);
     }
 }

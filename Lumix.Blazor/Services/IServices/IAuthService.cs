@@ -9,7 +9,5 @@ public interface IAuthService
     Task<ApiResult<RegisterDto>> RegisterAsync(RegisterDto registerDto);
     Task<ApiResult<LoginResponseDto>> LoginAsync(LoginDto loginDto);
     Task Logout();
-    Task<bool> IsAuthenticated();
-    Task<string?> GetAccessToken();
     Task<ApiResult<Guid?>> GetCurrentUserAsync();
 }

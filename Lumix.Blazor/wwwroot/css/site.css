@@ -286,6 +286,14 @@ a, .btn-link {
     box-sizing: border-box;
 }
 
-    .tags-preview-paper .mud-typography {
-        line-height: 1.4;
-    }
+.tags-preview-paper .mud-typography {
+    line-height: 1.4;
+}
+
+.username-link {
+cursor: pointer;
+}
+
+.username-link:hover {
+    text-decoration: underline;
+}

@@ -51,10 +51,7 @@ namespace Lumix.Blazor.Pages.Auth
                 if (result.IsSuccess)
                 {
                     success = true;
-                    if (AuthStateProvider is CustomAuthenticationStateProvider custom)
-                    {
-                        custom.NotifyUserAuthenticationStateChanged();
-                    }
+                    
                     await Task.Delay(1000);
                     NavigationManager.NavigateTo("login");
                 }

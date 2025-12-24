@@ -19,12 +19,12 @@ namespace Lumix.Blazor.Services
             _url = $"{baseUrl}/api/user";
         }
 
-        public async Task<ApiResult<UserProfileDto>> GetProfileAsync()
+        public async Task<ApiResult<UserProfileDto>> GetMyProfileAsync()
         {
             try
             {
                 _logger.LogInformation("Getting current user");
-                var response = await _httpService.GetAsync<UserProfileDto>($"{_url}/profile");
+                var response = await _httpService.GetAsync<UserProfileDto>($"{_url}/me");
                 if (response.IsSuccess && response.Value != null)
                 {
                     _logger.LogInformation("Current user retrieved");
@@ -38,23 +38,23 @@ namespace Lumix.Blazor.Services
             }
         }
 
-        public async Task<ApiResult<Guid>> GetMeAsync()
+        public async Task<ApiResult<UserProfileDto>> GetProfileAsync(Guid userId)
         {
             try
             {
-                _logger.LogInformation("Getting current user");
-                var response = await _httpService.GetAsync<Guid>($"{_url}/me");
+                _logger.LogInformation($"Getting user profile: {userId}");
+                var response = await _httpService.GetAsync<UserProfileDto>($"{_url}/{userId}");
                 if (response.IsSuccess && response.Value != null)
                 {
-                    _logger.LogInformation("Current user retrieved");
-                    return ApiResult<Guid>.Success(response.Value);
+                    _logger.LogInformation($"User profile retrieved: {userId}");
+                    return ApiResult<UserProfileDto>.Success(response.Value);
                 }
-                return ApiResult<Guid>.Failure(response.ErrorMessage ?? "Unknown API error");
+                return ApiResult<UserProfileDto>.Failure(response.ErrorMessage ?? "Unknown API error");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to get current user");
-                return ApiResult<Guid>.Failure(ex.Message);
+                _logger.LogError(ex, $"Failed to get user profile: {userId}");
+                return ApiResult<UserProfileDto>.Failure(ex.Message);
             }
         }
         }

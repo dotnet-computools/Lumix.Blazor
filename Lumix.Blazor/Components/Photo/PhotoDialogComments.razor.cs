@@ -13,13 +13,14 @@ namespace Lumix.Blazor.Components.Photo
     {
         [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
         [Parameter] public PhotoDto Photo { get; set; }
-        [Parameter] public UserProfileDto CurrentUser { get; set; }
+        [Parameter] public UserPreviewDto? Viewer { get; set; }
         [Parameter] public EventCallback<CommentRequest> OnAddComment { get; set; }
         [Inject] public IDialogService DialogService { get; set; }
         [Inject] public IPhotoService PhotoService { get; set; }
         [Inject] public ICommentService CommentService { get; set; }
         [Inject] public ISnackbar Snackbar { get; set; }
         [Inject] public AuthenticationStateProvider AuthStateProvider { get; set; } = null!;
+        [Inject] public NavigationManager NavigationManager { get; set; } = null!;
 
         public string NewComment { get; set; } = string.Empty;
         public Guid? ReplyParentId { get; set; } = null;
@@ -31,6 +32,7 @@ namespace Lumix.Blazor.Components.Photo
         {
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             _currentUserId = authState.User.GetUserId();
+            StateHasChanged();
         }
 
         protected override void OnParametersSet()
@@ -140,6 +142,12 @@ namespace Lumix.Blazor.Components.Photo
                     return;
                 }
             }
+        }
+
+        private void OpenUserProfile(Guid userId)
+        {
+            MudDialog.Close();
+            NavigationManager.NavigateTo($"/profile/{userId}");
         }
     }
 }

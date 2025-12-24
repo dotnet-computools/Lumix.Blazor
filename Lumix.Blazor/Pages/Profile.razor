@@ -1,6 +1,18 @@
 @page "/profile"
+@page "/profile/{UserId:guid}"
 
 @using Lumix.Blazor.Components.Profile;
 
 
-<ProfileCard Profile="@ProfileDto" OnOpenPhoto="@OpenPhotoDialog"/>
+@if (IsLoading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (Error is not null)
+{
+    <MudAlert Severity="Severity.Error">@Error</MudAlert>
+}
+else if (ProfileDto is not null)
+{
+    <ProfileCard Profile="@ProfileDto" OnOpenPhoto="@OpenPhotoDialog" />
+}

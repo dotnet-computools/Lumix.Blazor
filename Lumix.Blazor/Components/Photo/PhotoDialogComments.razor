@@ -20,8 +20,7 @@
                 <MudAvatar Color="Color.Primary" Size="Size.Medium">
                     @if (string.IsNullOrEmpty(Photo.Author.ProfilePictureUrl))
                     {
-                        @Photo.Author.Username.GetInitials("Unknown")
-                        ;
+                        @Photo.Author.Username.GetInitials("U");
                     }
                     else
                     {
@@ -110,7 +109,9 @@
                                                           Alt="@comment.Author.Username" />
                                             </MudAvatar>
 
-                                            <MudText Typo="Typo.caption" Class="fw-bold">
+                                            <MudText Typo="Typo.caption"
+                                                     Class="fw-bold username-link"
+                                                     @onclick="@(() => OpenUserProfile(comment.Author.Id))">
                                                 @comment.Author.Username
                                             </MudText>
 
@@ -171,7 +172,9 @@
                                                                       Alt="@reply.Author.Username" />
                                                         </MudAvatar>
 
-                                                        <MudText Typo="Typo.caption" Class="fw-bold">
+                                                        <MudText Typo="Typo.caption"
+                                                                 Class="fw-bold username-link"
+                                                                 @onclick="@(() => OpenUserProfile(reply.Author.Id))">
                                                             @reply.Author.Username
                                                         </MudText>
                                                     </MudStack>
@@ -224,7 +227,18 @@
 
         <MudStack Spacing="1" Row="true" AlignItems="AlignItems.Center" Class="mt-3 comment-input-row">
             <MudAvatar Size="Size.Medium">
-                <MudImage Src="@CurrentUser.ProfilePictureUrl" Alt="@CurrentUser.Username" />
+                @if (Viewer is null)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Person" />
+                }
+                else if (string.IsNullOrWhiteSpace(Viewer.ProfilePictureUrl))
+                {
+                    @Viewer.Username.GetInitials("U")
+                }
+                else
+                {
+                    <MudImage Src="@Viewer.ProfilePictureUrl" Alt="@Viewer.Username" />
+                }
             </MudAvatar>
             @if (!string.IsNullOrEmpty(ReplyToUsername))
             {
