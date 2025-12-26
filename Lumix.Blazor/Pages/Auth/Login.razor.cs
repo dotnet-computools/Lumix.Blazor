@@ -5,6 +5,7 @@ using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Lumix.Blazor.Pages.Auth
 {
@@ -19,10 +20,21 @@ namespace Lumix.Blazor.Pages.Auth
         private bool success;
         private string ErrorMessage = string.Empty;
         private bool IsProcessing;
+        private string? _returnUrl;
         private MudForm Form { get; set; } = default!;
         private bool firstRender = true;
         private bool[] activeImages = new bool[3];
-        
+
+        protected override void OnInitialized()
+        {
+            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+            if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrl))
+            {
+                _returnUrl = returnUrl;
+            }
+        }
+
         private void HandleImageHover(int index)
         {
             activeImages[index] = true;
@@ -71,7 +83,7 @@ namespace Lumix.Blazor.Pages.Auth
                 if (result.IsSuccess)
                 {
                     success = true;
-                    NavigationManager.NavigateTo("/");
+                    NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(_returnUrl) ? "/" : _returnUrl, forceLoad: true);
                 }
                 else
                 {
