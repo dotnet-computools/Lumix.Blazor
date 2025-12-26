@@ -1,0 +1,133 @@
+﻿.photo-dialog-root {
+    max-height: 80vh;
+    overflow: hidden;
+    max-height: 80vh;
+    overflow: hidden;
+    border-radius: 24px;
+    
+    background: rgba(244, 238, 255, 0.85);
+    
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+}
+
+.photo-dialog-inner {
+    display: flex;
+    gap: 32px;
+    padding: 24px 32px;
+    max-height: 80vh;
+    box-sizing: border-box;
+}
+
+.photo-dialog-left {
+    flex: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.photo-dialog-image {
+    max-width: 100%;
+    max-height: 76vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 24px;
+    display: block;
+}
+
+.photo-dialog-right {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    max-height: 76vh;
+}
+
+.photo-dialog-author-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.photo-dialog-author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.photo-dialog-author-name {
+    font-weight: 600;
+}
+
+.photo-dialog-date {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.photo-dialog-title {
+    margin-top: 4px;
+}
+
+.photo-dialog-tags {
+    margin-top: 4px;
+}
+
+.photo-dialog-tag {
+    margin-right: 4px;
+    color: #1f75fe;
+    font-size: 0.9rem;
+}
+
+.photo-dialog-stats-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.photo-dialog-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.photo-dialog-comments {
+    flex: 1;
+    margin-top: 8px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.photo-dialog-comment-item {
+    margin-bottom: 6px;
+}
+
+.photo-dialog-comment-time {
+    font-size: 0.75rem;
+    opacity: 0.6;
+}
+
+.photo-dialog-comment-input {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.photo-dialog-comment-textfield {
+    flex: 1;
+}
+
+.photo-dialog-comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}

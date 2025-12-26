@@ -1,0 +1,70 @@
+﻿@using Lumix.Blazor.Data.User
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
+
+<MudContainer>
+
+    <MudPaper Elevation="0" Class="profile-card pa-6">
+        <div class="profile-header">
+            @if (string.IsNullOrEmpty(Profile.ProfilePictureUrl))
+            {
+                <MudAvatar Size="Size.Medium" 
+                           Class="custom-avatar"
+                           Icon="Icons.Material.Filled.AccountCircle" />
+            }
+            else
+            {
+                <MudAvatar Size="Size.Medium" Class="custom-avatar">
+                    <MudImage Src="@Profile.ProfilePictureUrl" Alt="@Profile.Username" />
+                </MudAvatar>
+            }
+            
+
+            <MudText Typo="Typo.h6" Class="font-weight-bold text-center">
+                @Profile.Username
+            </MudText>
+
+            <MudText Typo="Typo.body2" Class="mt-1 text-center">
+                @Profile.FollowersCount підписників • @Profile.FollowingCount підписок
+            </MudText>
+
+            <MudText Typo="Typo.body2" Class="text-center mb-4">
+                Всього @Profile.Photos.Count фото
+            </MudText>
+        </div>
+        @if(Profile.Photos?.Count != 0)
+        {
+            <MudGrid GutterSize="0" Class="photo-grid">
+                @foreach (var photo in Profile.Photos)
+                {
+                    <MudItem xs="4">
+                        <div class="photo-item" @onclick="@(() => OnOpenPhoto.InvokeAsync(photo.Id))">
+                            <img src="@photo.Url" class="photo-img" />
+                        </div>
+                    </MudItem>
+                }
+            </MudGrid>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" 
+                       Style="color: white; background-color: orangered" 
+                       OnClick="NavigateToCreatePost">
+                Додати перше фото
+            </MudButton>
+        }
+
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+    [Parameter] public UserProfileDto Profile { get; set; } = default!;
+    [Parameter] public EventCallback<Guid> OnOpenPhoto { get; set; }
+
+    private void NavigateToCreatePost()
+    {
+        NavigationManager.NavigateTo("/posts/create");
+    }
+}

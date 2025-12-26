@@ -1,0 +1,272 @@
+﻿@using Lumix.Blazor.Extensions
+
+
+<MudPaper Elevation="0"
+          Class="d-flex flex-grow-1 flex-column pa-4 comments-bg-white h-100">
+
+    @if (Photo is null)
+    {
+        <MudText Color="Color.Error">Дані фото відсутні</MudText>
+    }
+    else
+    {
+        <MudStack Row="true"
+                  AlignItems="AlignItems.Center"
+                  Justify="Justify.SpaceBetween"
+                  Class="mb-2">
+            
+
+            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                <MudAvatar Color="Color.Primary" Size="Size.Medium">
+                    @if (string.IsNullOrEmpty(Photo.Author.ProfilePictureUrl))
+                    {
+                        @Photo.Author.Username.GetInitials("U");
+                    }
+                    else
+                    {
+                        <MudImage Src="@Photo.Author.ProfilePictureUrl" />
+                    }
+                </MudAvatar>
+
+                <MudText Typo="Typo.h6">@Photo.Author.Username</MudText>
+            </MudStack>
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudText Typo="Typo.caption" Color="Color.Default">
+                    @Photo.CreatedAt.ToString("dd.MM.yyyy")
+                </MudText>
+
+                @if (CanDeletePhoto)
+                {
+                    <MudMenu AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopRight" Dense="true">
+                        <ActivatorContent>
+                            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+                        </ActivatorContent>
+
+                        <ChildContent>
+                            <MudMenuItem OnClick="@(() => ConfirmDeletePhoto(Photo.Id))">
+                                <MudIcon Icon="@Icons.Material.Filled.Delete" Class="me-2" />
+                                Видалити фото
+                            </MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                }
+            </MudStack>
+        </MudStack>
+
+        <MudText Typo="Typo.h6" Class="mb-2">
+            @Photo.Title
+        </MudText>
+            
+        
+
+        @if(Photo.PhotoTags?.Any() == true)
+        {
+            <MudChipSet Class="mb-2" ReadOnly="true">
+                @foreach(var tag in Photo.PhotoTags)
+                {
+                    <MudChip Color="Color.Primary" Variant="Variant.Outlined" DisableRipple="true">
+                        #@tag.Tag.Name
+                    </MudChip>
+                }
+            </MudChipSet>
+        }
+
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start" Class="mb-2">
+            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start">
+                <MudIcon Icon="@Icons.Material.Filled.Favorite" />
+                <MudText>@Photo.Likes.Count</MudText>
+            </MudStack>
+
+            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start">
+                <MudIcon Icon="@Icons.Material.Filled.ChatBubbleOutline" />
+                <MudText>@Photo.Comments.Count</MudText>
+            </MudStack>
+        </MudStack>
+
+
+        <MudPaper Elevation="0"
+                  Class="flex-grow-1 d-flex flex-column comments-container comments-bg-white">
+
+            @if (Photo.Comments?.Any() == true)
+            {
+                <MudPaper Elevation="0"
+                          Class="flex-grow-1 comments-scroll comments-bg-white"
+                          Style="background-color: #ffffff">
+                    <MudList Dense="false" Style="background-color: #ffffff">
+                        @foreach (var comment in Photo.Comments.OrderByDescending(x => x.CreatedAt))
+                        {
+                            <MudListItem Class="mb-3">
+                                <MudStack Spacing="0">
+
+                                    <MudStack Row="true"
+                                              AlignItems="AlignItems.Center"
+                                              Justify="Justify.SpaceBetween">
+
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                            <MudAvatar Size="Size.Small">
+                                                <MudImage Src="@comment.Author.ProfilePictureUrl"
+                                                          Alt="@comment.Author.Username" />
+                                            </MudAvatar>
+
+                                            <MudText Typo="Typo.caption"
+                                                     Class="fw-bold username-link"
+                                                     @onclick="@(() => OpenUserProfile(comment.Author.Id))">
+                                                @comment.Author.Username
+                                            </MudText>
+
+                                            <MudButton Variant="Variant.Text"
+                                                       Size="Size.Small"
+                                                       Class="mud-typography-caption px-0"
+                                                       OnClick="@(() => StartReply(comment))">
+                                                Відповісти
+                                            </MudButton>
+                                        </MudStack>
+
+                                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                                            <MudText Typo="Typo.caption"
+                                                     Color="Color.Default"
+                                                     Class="comment-time">
+                                                @GetRelativeTime(comment.CreatedAt)
+                                            </MudText>
+                                            @if (CanDeleteComment(comment))
+                                            {
+                                                <MudMenu AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopRight" Dense="true">
+                                                    <ActivatorContent>
+                                                        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+                                                    </ActivatorContent>
+
+                                                    <ChildContent>
+                                                        <MudMenuItem OnClick="@(() => ConfirmDeleteComment(comment.Id))">
+                                                            <MudIcon Icon="@Icons.Material.Filled.Delete" Class="me-2" />
+                                                            Видалити коментар
+                                                        </MudMenuItem>
+                                                    </ChildContent>
+                                                </MudMenu>
+                                            }
+                                        </MudStack>
+
+                                    </MudStack>
+
+                                    <MudText Typo="Typo.body2" Class="mt-1 ml-8">
+                                        @comment.Text
+                                    </MudText>
+                                </MudStack>
+                            </MudListItem>
+
+                            @if (comment.Children?.Any() == true)
+                            {
+                                <MudStack Class="ml-6 mt-n1">
+                                    @foreach (var reply in comment.Children)
+                                    {
+                                        <MudListItem Dense="true" Class="mb-2">
+                                            <MudStack Spacing="0">
+
+                                                <MudStack Row="true"
+                                                          AlignItems="AlignItems.Center"
+                                                          Justify="Justify.SpaceBetween">
+
+                                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                                        <MudAvatar Size="Size.Small">
+                                                            <MudImage Src="@reply.Author.ProfilePictureUrl"
+                                                                      Alt="@reply.Author.Username" />
+                                                        </MudAvatar>
+
+                                                        <MudText Typo="Typo.caption"
+                                                                 Class="fw-bold username-link"
+                                                                 @onclick="@(() => OpenUserProfile(reply.Author.Id))">
+                                                            @reply.Author.Username
+                                                        </MudText>
+                                                    </MudStack>
+
+                                                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                                                        <MudText Typo="Typo.caption"
+                                                                 Color="Color.Default"
+                                                                 Class="comment-time">
+                                                            @GetRelativeTime(reply.CreatedAt)
+                                                        </MudText>
+                                                    
+                                                        @if (CanDeleteComment(reply))
+                                                        {
+                                                            <MudMenu AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopRight" Dense="true">
+                                                                <ActivatorContent>
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+                                                                </ActivatorContent>
+
+                                                                <ChildContent>
+                                                                    <MudMenuItem OnClick="@(() => ConfirmDeleteComment(reply.Id))">
+                                                                        <MudIcon Icon="@Icons.Material.Filled.Delete" Class="me-2" />
+                                                                        Видалити коментар
+                                                                    </MudMenuItem>
+                                                                </ChildContent>
+                                                            </MudMenu>
+                                                        }
+                                                    </MudStack>
+                                                </MudStack>
+
+                                                <MudText Typo="Typo.body2" Class="mt-1 ml-8">
+                                                    @reply.Text
+                                                </MudText>
+                                            </MudStack>
+                                        </MudListItem>
+                                    }
+                                </MudStack>
+                            }
+
+                        }
+                    </MudList>
+                </MudPaper>
+            }
+            else
+            {
+                <MudText Typo="Typo.caption" Class="mt-2">
+                    Поки що немає коментарів. Будь першим
+                </MudText>
+            }
+        </MudPaper>
+
+        <MudStack Spacing="1" Row="true" AlignItems="AlignItems.Center" Class="mt-3 comment-input-row">
+            <MudAvatar Size="Size.Medium">
+                @if (Viewer is null)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Person" />
+                }
+                else if (string.IsNullOrWhiteSpace(Viewer.ProfilePictureUrl))
+                {
+                    @Viewer.Username.GetInitials("U")
+                }
+                else
+                {
+                    <MudImage Src="@Viewer.ProfilePictureUrl" Alt="@Viewer.Username" />
+                }
+            </MudAvatar>
+            @if (!string.IsNullOrEmpty(ReplyToUsername))
+            {
+                <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.caption" Color="Color.Default" Class="mb-1">
+                        Відповідь для @ReplyToUsername
+                    </MudText>
+                    <MudButton Variant="Variant.Text"
+                               Size="Size.Small"
+                               Class="mud-typography-caption px-0"
+                               OnClick="CancelReply">
+                        Скасувати
+                    </MudButton>
+                </MudStack>
+            }
+
+            <MudTextField @bind-Value="NewComment"
+                          Placeholder="Коментар"
+                          Variant="Variant.Outlined"
+                          Class="flex-grow-1"
+                          Lines="1"
+                          Immediate="true" />
+
+            <MudIconButton Icon="@Icons.Material.Filled.Send"
+                           Disabled="@string.IsNullOrWhiteSpace(NewComment)"
+                           OnClick="SubmitComment" />
+        </MudStack>
+    }
+</MudPaper>
+
+ 

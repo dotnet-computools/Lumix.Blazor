@@ -1,7 +1,4 @@
 ﻿@page "/login"
-@using Blazored.LocalStorage
-@using Lumix.Blazor.Data
-@using Lumix.Blazor.Services.IServices
 
 <MudGrid Class="min-h-screen">
     <MudItem xs="12" sm="6" Class="flex justify-center items-center relative">
@@ -39,7 +36,7 @@
             </div>
 
             <MudForm Model="LoginDto" @ref="Form">
-                <MudTextField @bind-Value="LoginDto.email"
+                <MudTextField @bind-Value="LoginDto.Email"
                               Label="E-mail"
                               Variant="Variant.Outlined"
                               Style="width: 300px;"
@@ -47,7 +44,7 @@
                               Required="true"
                               RequiredError="Email is required"/>
 
-                <MudTextField @bind-Value="LoginDto.password"
+                <MudTextField @bind-Value="LoginDto.Password"
                               Label="Пароль"
                               Variant="Variant.Outlined"
                               InputType="InputType.Password"

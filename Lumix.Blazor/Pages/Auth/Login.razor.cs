@@ -1,8 +1,11 @@
 using Blazored.LocalStorage;
-using Lumix.Blazor.Data;
+using Lumix.Blazor.Data.Auth;
+using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Lumix.Blazor.Pages.Auth
 {
@@ -11,16 +14,27 @@ namespace Lumix.Blazor.Pages.Auth
         [Inject] private IAuthService AuthService { get; set; } = default!;
         [Inject] private NavigationManager NavigationManager { get; set; } = default!;
         [Inject] private ILogger<Login> Logger { get; set; } = default!;
-        [Inject] private ILocalStorageService LocalStorage { get; set; } = default!;
+        [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
         private LoginDto LoginDto { get; set; } = new();
         private bool success;
         private string ErrorMessage = string.Empty;
         private bool IsProcessing;
+        private string? _returnUrl;
         private MudForm Form { get; set; } = default!;
         private bool firstRender = true;
         private bool[] activeImages = new bool[3];
-        
+
+        protected override void OnInitialized()
+        {
+            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+            if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrl))
+            {
+                _returnUrl = returnUrl;
+            }
+        }
+
         private void HandleImageHover(int index)
         {
             activeImages[index] = true;
@@ -32,25 +46,22 @@ namespace Lumix.Blazor.Pages.Auth
             activeImages[index] = false;
             StateHasChanged();
         }
-        
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
-            {
-                this.firstRender = false;
-                try
-                {
-                    if (await AuthService.IsAuthenticated())
-                    {
-                        NavigationManager.NavigateTo("/dashboard");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Error checking authentication status");
-                }
+            if (!firstRender) return;
 
-                await InvokeAsync(StateHasChanged);
+            try
+            {
+                var state = await AuthStateProvider.GetAuthenticationStateAsync();
+                if (state.User.Identity?.IsAuthenticated == true)
+                {
+                    NavigationManager.NavigateTo("/dashboard");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error checking authentication status");
             }
         }
 
@@ -72,22 +83,19 @@ namespace Lumix.Blazor.Pages.Auth
                 if (result.IsSuccess)
                 {
                     success = true;
-                    Logger.LogInformation("User successfully logged in: {Email}", LoginDto.email);
-
-                    await Task.Delay(1000);
-                    NavigationManager.NavigateTo("/dashboard");
+                    NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(_returnUrl) ? "/" : _returnUrl, forceLoad: true);
                 }
                 else
                 {
                     ErrorMessage = result.ErrorMessage;
                     Logger.LogWarning("Login failed for user {Email}: {ErrorMessage}",
-                        LoginDto.email, result.ErrorMessage);
+                        LoginDto.Email, result.ErrorMessage);
                 }
             }
             catch (Exception ex)
             {
                 ErrorMessage = "Error. Try again.";
-                Logger.LogError(ex, "Unhandled exception during login for user {Email}", LoginDto.email);
+                Logger.LogError(ex, "Unhandled exception during login for user {Email}", LoginDto.Email);
             }
             finally
             {

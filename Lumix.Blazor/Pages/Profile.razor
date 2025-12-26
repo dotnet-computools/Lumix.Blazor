@@ -1,68 +1,15 @@
+@attribute [Authorize]
 @page "/profile"
-@using Lumix.Blazor.Services.IServices
-@inject IAuthService AuthService
-@inject ILogger<Profile> Logger
+@page "/profile/{UserId:guid}"
 
 @using Lumix.Blazor.Components.Profile;
 
-<div class="profile-container">
-    <div class="profile-picture-container">
-        <img src="images/icons/profile/avatar_frame.png" alt="picture_frame" />
-        <img src="images//icons/profile/empty_avatar.png" alt="empty_picture" />
-    </div>
-</div>
 
-@if (userId.HasValue)
+@if (IsLoading)
 {
-    <p><strong>User ID:</strong> @userId.Value</p>
+    <MudProgressCircular Indeterminate="true" />
 }
-else if (isLoading)
+else if (ProfileDto is not null)
 {
-    <p>Loading...</p>
-}
-else
-{
-    <p>Error loading profile.</p>
-}
-
-<div class="profile-statistic-container">
-    <div class="follows-statistic-container">
-        <p>100 підписників</p>
-        <img src="images/icons/profile/separator.png" />
-        <p>200 підписок</p>
-    </div>
-    <div class="follows-statistic-container">
-        <p>всьогo 50 дописів</p>
-    </div>
-    <EmptyPhotoTableComponent />
-</div>
-
-@code {
-    private Guid? userId;
-    private bool isLoading = true;
-    private bool isInitialized = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !isInitialized)
-        {
-            isInitialized = true;
-            Logger.LogInformation("Initializing Profile page");
-
-            var result = await AuthService.GetCurrentUserAsync();
-
-            if (result.IsSuccess && result.Value.HasValue)
-            {
-                userId = result.Value;
-                Logger.LogInformation($"Fetched User ID: {userId}");
-            }
-            else
-            {
-                Logger.LogWarning($"Failed to fetch user profile: {result.ErrorMessage}");
-            }
-
-            isLoading = false;
-            StateHasChanged();
-        }
-    }
+    <ProfileCard Profile="@ProfileDto" OnOpenPhoto="@OpenPhotoDialog" />
 }

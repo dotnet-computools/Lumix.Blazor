@@ -1,6 +1,8 @@
-using Lumix.Blazor.Data;
+using Lumix.Blazor.Data.Auth;
+using Lumix.Blazor.Services;
 using Lumix.Blazor.Services.IServices;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 
 namespace Lumix.Blazor.Pages.Auth
@@ -10,6 +12,7 @@ namespace Lumix.Blazor.Pages.Auth
         [Inject] private IAuthService AuthService { get; set; } = default!;
         [Inject] private NavigationManager NavigationManager { get; set; } = default!;
         [Inject] private ILogger<Register> Logger { get; set; } = default!;
+        [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
         private RegisterDto RegisterDto { get; set; } = new();
         private bool success { get; set; }
@@ -48,7 +51,6 @@ namespace Lumix.Blazor.Pages.Auth
                 if (result.IsSuccess)
                 {
                     success = true;
-                    await Task.Delay(1000);
                     NavigationManager.NavigateTo("login");
                 }
                 else

@@ -1,0 +1,75 @@
+﻿@attribute [Authorize]
+@page "/posts/create"
+@using Lumix.Blazor.Components.Photo
+
+
+<div class="create-post-page-wrapper">
+
+    <MudStack Row="true"
+              Class="create-post-layout"
+              Spacing="3"
+              Justify="Justify.FlexStart"
+              AlignItems="AlignItems.Center">
+
+        
+        <MudPaper Elevation="0" Class="create-post-left">
+            <UploadPhotoArea OnSelected="OnFileSelected" HasPhoto="@isPhotoSelected"/>
+
+        </MudPaper>
+
+        <MudPaper Elevation="0" Class="create-post-right">
+            <div class="create-post-form">
+                <MudText Typo="Typo.h6" Class="mb-3" Style="font-weight: 400">Де опублікувати?</MudText>
+
+                <div class="switch-row">
+                    <MudText Typo="Typo.body1" Class="switch-label">профіль</MudText>
+
+                    <MudSwitch T="bool"
+                               @bind-Value="_model.IsAvatar"
+                               Color="Color.Dark"
+                               UnCheckedColor="Color.Default"
+                               Class="switch-control" />
+
+                    <MudText Typo="Typo.body1" Class="switch-label">аватар</MudText>
+                </div>
+
+                @if (!_model.IsAvatar)
+                {
+                    <MudText Typo="Typo.h6" Style="font-weight: 400">Додайте опис фото:</MudText>
+                    <MudTextField @bind-Value="_model.Title"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.None"
+                                  Placeholder="Опис"
+                                  Class="mb-3 form-field custom-textfield" />
+
+                    <MudText Typo="Typo.h6" Style="font-weight: 400">Додайте тег для фото:</MudText>
+                    <MudTextField @bind-Value="TagsInput"
+                                  @onkeydown="@(e => HandleTagKeyDown(e))"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.None"
+                                  Placeholder="Тег"
+                                  Class="mb-4 form-field custom-textfield" 
+                                  Immediate="true"/>
+                    @if (_previewTags.Any())
+                    {
+                        <MudPaper Class="tags-preview-paper" Elevation="0">
+                            @foreach (var tag in _previewTags)
+                            {
+                                <MudText Typo="Typo.body2">#@tag</MudText>
+                            }
+                        </MudPaper>
+                    }
+                }
+
+                <MudButton Variant="Variant.Filled"
+                           Class="form-button"
+                           OnClick="HandleUpload">
+                    Опублікувати
+                </MudButton>
+            </div>
+        </MudPaper>
+
+    </MudStack>
+
+</div>
+

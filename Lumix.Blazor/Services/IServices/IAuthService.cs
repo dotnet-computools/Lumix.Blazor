@@ -1,4 +1,4 @@
-using Lumix.Blazor.Data;
+using Lumix.Blazor.Data.Auth;
 using Lumix.Blazor.Data.Responses;
 using Lumix.Blazor.Models;
 
@@ -9,7 +9,5 @@ public interface IAuthService
     Task<ApiResult<RegisterDto>> RegisterAsync(RegisterDto registerDto);
     Task<ApiResult<LoginResponseDto>> LoginAsync(LoginDto loginDto);
     Task Logout();
-    Task<bool> IsAuthenticated();
-    Task<string?> GetAccessToken();
     Task<ApiResult<Guid?>> GetCurrentUserAsync();
 }

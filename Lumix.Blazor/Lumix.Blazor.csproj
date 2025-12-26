@@ -16,9 +16,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\Requests\" />
-    <Folder Include="Middleware\" />
-  </ItemGroup>
-
 </Project>

@@ -1,0 +1,37 @@
+﻿<MudDialog>
+    <DialogContent>
+        @if (_isLoading)
+        {
+            <MudStack Justify="Justify.Center"
+                      Class="pa-6"
+                      Style="min-height:400px">
+                <MudProgressCircular Indeterminate="true" />
+            </MudStack>
+        }
+        else if (Photo is null)
+        {
+            <MudStack Justify="Justify.Center"
+                      AlignItems="AlignItems.Center"
+                      Class="pa-6"
+                      Style="min-height:300px">
+                <MudText Color="Color.Error">Фото не знайдено</MudText>
+            </MudStack>
+        }
+        else
+        {
+            <MudGrid Spacing="0" Class="photo-dialog-grid">
+                <MudItem xs="12" md="7">
+                    <PhotoDialogImage Photo="Photo" />
+                </MudItem>
+
+                <MudItem xs="12" md="5" Class="d-flex flex-column">
+                    <PhotoDialogComments Photo="Photo" Viewer="Viewer" OnAddComment="HandleCommentAdded" />
+                </MudItem>
+            </MudGrid>
+        }
+    </DialogContent>
+
+</MudDialog>
+
+
+
